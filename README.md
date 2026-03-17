@@ -10,7 +10,7 @@
 
 ## 🇫🇷 Français
 
-📖 **[Lire le guide (FR)](guide/openclaw-production-guide-fr.html)**
+📖 **[Lire le guide (FR)](https://hkconseils.github.io/openclaw-production-guide/guide/openclaw-production-guide-fr.html)** — *thème sombre, gris ou clair au choix*
 
 ## 🇬🇧 English
 

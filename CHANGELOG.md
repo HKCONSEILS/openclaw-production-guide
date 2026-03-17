@@ -10,6 +10,18 @@ sessions de travail avec Claude (Anthropic).
 
 ---
 
+## [1.1.0] — 2026-03-17
+
+### Added
+- Sélecteur de thème : sombre (défaut), gris, clair — persisté en localStorage
+- Lien GitHub Pages dans le README pour lecture directe sans téléchargement
+
+### Changed
+- CSS entièrement refactorisé en CSS variables pour supporter les 3 thèmes
+- Transitions fluides (300ms) entre les thèmes
+
+---
+
 ## [1.0.0] — 2026-03-17 (première publication publique)
 
 ### Added
