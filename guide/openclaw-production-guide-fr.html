@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw — Guide de Déploiement Production</title>
+<meta name="description" content="Guide de déploiement production pour agents IA OpenClaw. Defense in depth 10 couches, dimensionnement hardware, architecture de référence. Par HKCONSEILS.">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600;8..60,700;8..60,800&family=DM+Sans:opsz,wght@9..40,300..800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#06060C;color:#B8B8C8;min-height:100vh;line-height:1.7}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0A0A14}::-webkit-scrollbar-thumb{background:#2A2A3A;border-radius:3px}
+.mono{font-family:'JetBrains Mono',monospace}
+.serif{font-family:'Source Serif 4',serif}
+a{color:#8B9CF6;text-decoration:none}a:hover{text-decoration:underline}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#0A0818 0%,#12080A 50%,#080A18 100%);padding:32px 24px 24px;border-bottom:2px solid #EF444466;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#EF4444,#F59E0B,#10B981,#8B5CF6)}
+.hdr-inner{max-width:900px;margin:0 auto}
+.hdr h1{font-family:'Source Serif 4',serif;font-size:26px;font-weight:800;color:#F0F0F8;letter-spacing:-.5px;line-height:1.2}
+.hdr h1 span{color:#EF4444}
+.hdr-sub{font-size:12px;color:#666;margin-top:8px;font-family:'JetBrains Mono',monospace}
+.hdr-badges{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.badge{display:inline-block;font-size:9px;font-weight:700;padding:3px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;letter-spacing:.4px;text-transform:uppercase}
+.badge-red{background:#EF444418;color:#EF4444;border:1px solid #EF444433}
+.badge-green{background:#10B98118;color:#10B981;border:1px solid #10B98133}
+.badge-purple{background:#8B5CF618;color:#8B5CF6;border:1px solid #8B5CF633}
+.badge-amber{background:#F59E0B18;color:#F59E0B;border:1px solid #F59E0B33}
+
+/* NAV */
+.nav{background:#08080F;border-bottom:1px solid #1A1A2A;position:sticky;top:0;z-index:100;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+.nav-inner{max-width:900px;margin:0 auto;display:flex;gap:2px;padding:6px 16px}
+.nav-btn{background:transparent;color:#555;border:none;border-bottom:2px solid transparent;padding:10px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .2s;flex-shrink:0}
+.nav-btn:hover{color:#999}.nav-btn.active{color:#E0E0F0;border-bottom-color:#8B5CF6}
+
+/* CONTENT */
+.main{max-width:900px;margin:0 auto;padding:24px 20px 80px}
+.section{display:none}.section.active{display:block}
+.section-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8B5CF6;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.section-title{font-family:'Source Serif 4',serif;font-size:22px;font-weight:800;color:#E8E8F0;margin-bottom:20px;line-height:1.3}
+.card{background:#0C0C18;border:1px solid #1A1A2E;border-radius:10px;padding:20px;margin-bottom:16px}
+.card-accent{border-left:3px solid}
+h3{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#D0D0E0;margin:20px 0 10px;letter-spacing:-.2px}
+p{margin-bottom:14px;font-size:14px;color:#999;line-height:1.8}
+.callout{background:#F59E0B08;border:1px solid #F59E0B22;border-radius:8px;padding:14px 16px;margin:16px 0;font-size:13px;color:#D0A040;line-height:1.7}
+.callout-red{background:#EF444408;border-color:#EF444422;color:#D04040}
+.callout-green{background:#10B98108;border-color:#10B98122;color:#40C090}
+.axiom{font-family:'Source Serif 4',serif;font-size:16px;font-weight:600;color:#E0D0C0;font-style:italic;padding:20px;border-left:3px solid #F59E0B;margin:20px 0;line-height:1.6}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:12px;margin:14px 0}
+th{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:#555;text-align:left;padding:10px 8px;border-bottom:2px solid #1A1A2E;position:sticky;top:46px;background:#0C0C18}
+td{padding:9px 8px;border-bottom:1px solid #111120;color:#999;vertical-align:top}
+tr:hover td{background:#0E0E1C}
+.severity-crit{color:#EF4444;font-weight:700}.severity-high{color:#F59E0B;font-weight:700}.severity-med{color:#06B6D4}
+
+/* CODE */
+pre{font-family:'JetBrains Mono',monospace;font-size:11px;color:#777;line-height:1.7;background:#08080F;padding:16px;border-radius:8px;overflow-x:auto;margin:14px 0;border:1px solid #141420}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:#141420;padding:1px 6px;border-radius:3px;color:#A0A0C0}
+
+/* CHECKLIST */
+.check-group{margin-bottom:20px}
+.check-group-title{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#8B5CF6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #1A1A2E}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #0E0E1A;font-size:13px;color:#999;cursor:pointer;transition:opacity .2s}
+.check-item:hover{opacity:.8}
+.check-item.done{opacity:.4;text-decoration:line-through}
+.check-box{width:18px;height:18px;border:2px solid #2A2A4A;border-radius:4px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:11px;color:transparent}
+.check-item.done .check-box{background:#10B981;border-color:#10B981;color:#fff}
+
+/* LAYER */
+.layer{display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-bottom:1px solid #111120}
+.layer:last-child{border-bottom:none}
+.layer-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;font-family:'JetBrains Mono',monospace;flex-shrink:0;color:#fff}
+.layer-body{flex:1}
+.layer-title{font-weight:700;font-size:13px;color:#D0D0E0;margin-bottom:4px}
+.layer-detail{font-size:12px;color:#888;line-height:1.7}
+.layer-cmd{font-family:'JetBrains Mono',monospace;font-size:11px;color:#666;background:#08080F;padding:6px 10px;border-radius:4px;margin-top:8px;border:1px solid #141420}
+
+/* FOOTER */
+.footer{max-width:900px;margin:0 auto;padding:30px 20px;border-top:1px solid #1A1A2A;text-align:center}
+.footer-quote{font-family:'Source Serif 4',serif;font-size:15px;font-style:italic;color:#555;margin-bottom:16px}
+.footer-links{font-size:11px;color:#444;font-family:'JetBrains Mono',monospace}
+.footer-links a{color:#666}
+
+/* CTA */
+.cta{background:linear-gradient(135deg,#0D0A1A,#1A0F2A);border:1px solid #8B5CF633;border-radius:10px;padding:16px 20px;margin-top:24px;display:flex;align-items:center;gap:14px;font-size:12px;color:#888}
+.cta-icon{font-size:24px;flex-shrink:0}
+
+@media(max-width:700px){
+  .hdr h1{font-size:20px}
+  .nav-btn{padding:8px 10px;font-size:10px}
+  .card{padding:14px}
+  .layer{flex-direction:column;gap:8px}
+  pre{font-size:10px;padding:10px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+<div class="hdr-inner">
+<h1>🦞 OpenClaw — Guide de Déploiement <span>Production</span></h1>
+<div class="hdr-sub">Defense in depth · 10 couches sécurité · Dimensionnement hardware · Architecture de référence · Checklist production — 17 mars 2026</div>
+<div class="hdr-badges">
+<span class="badge badge-red">COMMUNITY EDITION v1.0.0</span>
+<span class="badge badge-green">CC BY-SA 4.0</span>
+<span class="badge badge-purple">OpenClaw v2026.3.13</span>
+<span class="badge badge-amber">17 mars 2026</span>
+</div>
+</div>
+</div>
+
+<!-- NAV -->
+<div class="nav"><div class="nav-inner" id="nav"></div></div>
+
+<!-- CONTENT -->
+<div class="main" id="main"></div>
+
+<!-- FOOTER -->
+<div class="footer">
+<div class="footer-quote">"La sécurité n'est pas une instruction dans un prompt. C'est une architecture."</div>
+<div class="footer-links">
+<a href="https://www.linkedin.com/in/hemersonkoffi/">HKCONSEILS — Hemerson K.</a> · 
+<a href="https://github.com/HKCONSEILS/openclaw-production-guide">GitHub</a> · 
+CC BY-SA 4.0 · 
+v1.0.0 — 17 mars 2026
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+//  SECTIONS DATA
+// ═══════════════════════════════════
+
+const TABS = [
+  {id:"intro",label:"Avant-propos",icon:"📋"},
+  {id:"threat",label:"Menaces",icon:"⚠️"},
+  {id:"archi",label:"Architecture",icon:"🏗️"},
+  {id:"security",label:"10 Couches",icon:"🛡️"},
+  {id:"hardware",label:"Hardware",icon:"⚙️"},
+  {id:"ecosystem",label:"Écosystème",icon:"🌐"},
+  {id:"checklist",label:"Checklist",icon:"✅"},
+  {id:"lessons",label:"Leçons",icon:"💡"},
+];
+
+function renderIntro(){return`
+<div class="section-num">§0 — Avant-propos</div>
+<div class="section-title">Pourquoi ce guide existe</div>
+<div class="card">
+<p>OpenClaw est le framework d'agents IA personnel open source le plus populaire au monde : <strong>315 000+ stars GitHub</strong>, 900+ contributeurs, une release par jour, et une adoption massive de la Chine aux États-Unis. C'est un outil extraordinaire.</p>
+<p>C'est aussi un projet de quelques mois qui exécute du code de manière autonome avec des identifiants persistants. En mars 2026 :</p>
+<p>• <strong>42 665 instances</strong> exposées sur Internet, 93,4% sans authentification (Bitsight)<br>
+• <strong>~900 skills malveillantes</strong> sur ClawHub, soit 20% du registre (Bitdefender)<br>
+• <strong>8 CVEs critiques/high</strong> divulguées en 2 mois, dont une RCE one-click (CVE-2026-25253)<br>
+• La Corée du Sud a <strong>banni OpenClaw</strong> sur les appareils professionnels gouvernementaux</p>
+<p>Ce guide documente comment déployer OpenClaw en production de manière sécurisée. Il est issu d'un travail interne mené par <a href="https://www.linkedin.com/in/hemersonkoffi/">HKCONSEILS</a> depuis le 27 février 2026 sur une infrastructure bare-metal réelle : serveur multi-GPU, fleet de mini-PCs agents, inférence locale, defense in depth 10 couches.</p>
+<p>C'est la version publique et sanitisée de ce travail. Les détails commerciaux, les configurations spécifiques et les identités des agents restent confidentiels.</p>
+</div>
+<div class="callout">⚠️ OpenClaw évolue chaque jour. Ce guide est daté du 17 mars 2026 (OpenClaw v2026.3.13). Vérifiez toujours contre <a href="https://docs.openclaw.ai">docs.openclaw.ai</a>. Les auteurs ne sont pas affiliés au projet OpenClaw.</div>
+<div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'aide pour implémenter ce guide sur votre infrastructure ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
+`;}
+
+function renderThreat(){return`
+<div class="section-num">§1 — Modèle de menace</div>
+<div class="section-title">Traitez OpenClaw comme une exécution de code non fiable</div>
+<div class="axiom">Axiome fondamental : OpenClaw est l'équivalent de donner un accès shell à un stagiaire très motivé mais imprévisible — qui peut en plus oublier vos instructions à tout moment quand sa mémoire se compresse.</div>
+<div class="card">
+<h3>Les 7 vecteurs d'attaque</h3>
+<p><strong>1. Exfiltration de données</strong> — L'agent a accès aux emails, fichiers, calendriers, messageries. Un prompt injection bien placé peut lui faire envoyer des données sensibles via un canal de messagerie ou un appel API.</p>
+<p><strong>2. Modification durable de l'état/mémoire</strong> — Un attaquant peut injecter des instructions persistantes dans la mémoire de l'agent (MEMORY.md, épisodes). Ces instructions survivent aux redémarrages et influencent le comportement futur.</p>
+<p><strong>3. Compromission de l'hôte</strong> — OpenClaw peut exécuter des commandes shell, manipuler le filesystem, et faire des requêtes réseau. Un agent compromis = un accès shell compromis.</p>
+<p><strong>4. Prompt injection</strong> — Problème non résolu au niveau de l'industrie. Un email, un message Slack, ou une page web visitée par l'agent peut contenir des instructions malveillantes invisibles (CSS-hidden) qui détournent son comportement.</p>
+<p><strong>5. Compaction destructrice de contexte</strong> — Quand la fenêtre de contexte se compresse, l'agent peut "oublier" des instructions critiques, y compris des instructions de sécurité. C'est la leçon de l'incident Summer Yue / Meta (février 2026).</p>
+<p><strong>6. Supply chain skills</strong> — ClawHub, le registre de skills OpenClaw, contenait ~900 skills malveillantes (trojans, infostealers, keyloggers, backdoors) au moment de l'audit Bitdefender. Le C2 (91.92.242.0/24) reste actif.</p>
+<p><strong>7. Exposition réseau</strong> — Le bind par défaut sur <code>0.0.0.0</code> dans les anciennes versions exposait le gateway WebSocket sur Internet. Combiné à l'absence d'authentification, c'est un accès direct à l'agent.</p>
+</div>
+
+<div class="card card-accent" style="border-left-color:#EF4444">
+<h3>Timeline CVE — janvier → mars 2026</h3>
+<table>
+<tr><th>ID</th><th>CVSS</th><th>Type</th><th>Fix</th><th>Description</th></tr>
+<tr><td class="severity-crit">CVE-2026-28363</td><td class="severity-crit">9.9</td><td>RCE</td><td>v2026.2.25</td><td>Critical Remote Code Execution</td></tr>
+<tr><td class="severity-crit">ClawJacked</td><td class="severity-crit">9.1</td><td>Hijack</td><td>v2026.2.25</td><td>Gateway WebSocket hijack → device registration → full takeover</td></tr>
+<tr><td class="severity-crit">CVE-2026-25253</td><td class="severity-crit">8.8</td><td>RCE</td><td>v2026.1.29</td><td>WebSocket hijack → token exfil → RCE (one-click, public exploit)</td></tr>
+<tr><td class="severity-high">CVE-2026-25593</td><td class="severity-high">7.8</td><td>RCE</td><td>v2026.2.14</td><td>Remote code execution</td></tr>
+<tr><td class="severity-high">CVE-2026-24763</td><td class="severity-high">7.5</td><td>Injection</td><td>v2026.1.29</td><td>Command injection</td></tr>
+<tr><td class="severity-high">CVE-2026-25157</td><td class="severity-high">7.5</td><td>Injection</td><td>v2026.1.29</td><td>OS command injection macOS SSH</td></tr>
+<tr><td class="severity-high">OC-01</td><td class="severity-high">7.5</td><td>Escape</td><td>v2026.2.4</td><td>Symlink sandbox escape</td></tr>
+<tr><td class="severity-high">OC-03</td><td class="severity-high">7.2</td><td>Escape</td><td>v2026.2.6</td><td>Hardlink sandbox escape</td></tr>
+<tr><td class="severity-high">OC-09</td><td class="severity-high">7.0</td><td>Injection</td><td>v2026.2.23</td><td>Env variable injection via skill config</td></tr>
+<tr><td>Credential Exposure</td><td class="severity-med">6.5</td><td>Leak</td><td>v2026.3.12</td><td>Setup codes QR embarquent credentials gateway long-lived</td></tr>
+<tr><td>CVE-2026-26322</td><td class="severity-med">6.5</td><td>Traversal</td><td>v2026.2.14</td><td>Path traversal</td></tr>
+<tr><td>CVE-2026-26319</td><td class="severity-med">6.0</td><td>SSRF</td><td>v2026.2.14</td><td>Server-Side Request Forgery</td></tr>
+<tr><td>CVE-2026-26329</td><td class="severity-med">6.0</td><td>Multi</td><td>v2026.2.14</td><td>Multiple security fixes</td></tr>
+<tr><td>Exec Bypass</td><td class="severity-med">5.5</td><td>Bypass</td><td>v2026.3.11</td><td>Case-folding + wildcard overmatching bypass exec allowlist</td></tr>
+<tr><td>CVE-2026-25475</td><td class="severity-med">5.5</td><td>Bypass</td><td>v2026.2.2</td><td>Authentication bypass</td></tr>
+<tr><td>Auth Bypass Teams</td><td class="severity-med">5.0</td><td>Bypass</td><td>v2026.3.8</td><td>Empty groupAllowFrom = wildcard sender auth</td></tr>
+<tr><td>Auth Bypass Feishu</td><td class="severity-med">5.0</td><td>Bypass</td><td>v2026.3.12</td><td>Reaction webhook sans chat_type bypass auth</td></tr>
+</table>
+</div>
+<div class="callout-red callout">🚨 Version minimum recommandée : <strong>v2026.3.12</strong> ou supérieure. Toute version antérieure est vulnérable à au moins une CVE critique.</div>
+<div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'un audit de sécurité de votre déploiement OpenClaw ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
+`;}
+
+function renderArchi(){return`
+<div class="section-num">§2 — Architecture de référence</div>
+<div class="section-title">Trois architectures, trois profils</div>
+
+<div class="card">
+<h3>Architecture monolithique (single-node)</h3>
+<pre>┌─────────────────────────────────────────┐
+│  Machine unique (PC SFF, Mac, VPS)      │
+│  ├── OpenClaw Gateway (Node.js)         │
+│  ├── Runtime d'inférence (Ollama)       │
+│  └── Canaux (WhatsApp, Telegram...)     │
+└─────────────────────────────────────────┘</pre>
+<p><strong>Quand :</strong> usage personnel, 1-5 agents, budget limité, simplicité maximale. Ollama est maintenant provider officiel (15 mars 2026) avec auto-découverte des modèles et zero-config.</p>
+</div>
+
+<div class="card">
+<h3>Architecture split (agent nodes ↔ inference node)</h3>
+<pre>┌────────────────────────┐     ┌──────────────────────────────┐
+│  Nœuds agents (légers) │     │  Nœud d'inférence (puissant) │
+│  Mini-PC / RPi / VPS   │     │  Serveur multi-GPU           │
+│  ├── OpenClaw Gateway   │     │  ├── llama-server / vLLM     │
+│  ├── Canaux messagerie  │────▶│  ├── Modèle(s) en VRAM       │
+│  └── Smart router       │ LAN │  └── API OpenAI-compatible   │
+│      (check /healthz)   │     │      multi-slots             │
+└────────────────────────┘     └──────────────────────────────┘
+         × N agents                    1 nœud mutualisé</pre>
+<p><strong>Quand :</strong> flotte de 5+ agents, multi-tenant, inférence locale exigée. Le nœud agent est léger (pas besoin de GPU), le nœud d'inférence est mutualisé. Communication via LAN ou WireGuard/Tailscale.</p>
+</div>
+
+<div class="card">
+<h3>Architecture hybride (local + cloud fallback)</h3>
+<pre>┌─────────────────────────────────────────┐
+│  OpenClaw Gateway                        │
+│  ├── Runtime local → tâches courantes    │
+│  └── API cloud → raisonnement complexe   │
+│      (Claude, GPT via LiteLLM proxy)     │
+└─────────────────────────────────────────┘</pre>
+<p><strong>Attention :</strong> le fallback cloud réintroduit des flux egress et des implications RGPD. Vérifier la compatibilité de chaque provider avec OpenClaw. Un proxy LLM (LiteLLM, OpenRouter) permet de router intelligemment.</p>
+</div>
+
+<div class="card card-accent" style="border-left-color:#F59E0B">
+<h3>Le triangle impossible de l'inférence locale</h3>
+<p>Pour un budget VRAM donné, on ne peut maximiser que 2 de ces 3 axes :</p>
+<p style="text-align:center;font-size:16px;font-weight:700;color:#F59E0B;margin:16px 0">Qualité modèle ↔ Taille contexte ↔ Nombre de slots simultanés</p>
+<p>Un gros modèle avec un long contexte ne laisse que peu de slots. Beaucoup de slots avec un long contexte impose un petit modèle. C'est la contrainte fondamentale du dimensionnement.</p>
+</div>
+
+<div class="card card-accent" style="border-left-color:#8B5CF6">
+<h3>3 profils de déploiement</h3>
+<div class="layer">
+<div class="layer-num" style="background:#EF4444">A</div>
+<div class="layer-body">
+<div class="layer-title">Programming (isolation OS)</div>
+<div class="layer-detail">Un utilisateur Linux dédié par agent. Toolset <code>programming</code>. Accès shell, filesystem, réseau. Pour les agents DevOps, Trading, Coding. Candidat sandbox conteneur (YoloBox pattern) pour nuke-and-pave rapide.</div>
+</div>
+</div>
+<div class="layer">
+<div class="layer-num" style="background:#8B5CF6">B</div>
+<div class="layer-body">
+<div class="layer-title">Messaging (isolation workspace)</div>
+<div class="layer-detail">Workspaces séparés sous un même utilisateur. Toolset <code>messaging</code>. Pour les agents CRM, Personnel, Contenu. Pas d'accès shell.</div>
+</div>
+</div>
+<div class="layer">
+<div class="layer-num" style="background:#10B981">C</div>
+<div class="layer-body">
+<div class="layer-title">Hybride (32 Go+ RAM minimum)</div>
+<div class="layer-detail">Combine les deux profils sur une même machine. Exige une séparation stricte et plus de RAM.</div>
+</div>
+</div>
+<div class="callout-red callout">⚠️ RÈGLE D'OR : ne jamais mélanger des agents programming et messaging sur le même utilisateur OS. Un agent programming compromis aurait accès aux données des agents messaging.</div>
+</div>
+
+<div class="card">
+<h3>Architecture multi-modèle (cerveau + worker)</h3>
+<p>Plusieurs modèles sur le même nœud d'inférence, avec routing intelligent via un proxy LLM :</p>
+<p>• <strong>Modèle "cerveau"</strong> — gros, peu de slots, pour le raisonnement complexe (ex: 27B+ Q8, 1-7 slots)<br>
+• <strong>Modèle "worker"</strong> — léger, beaucoup de slots, pour les tâches routinières (ex: 14B Q8, 10+ slots)<br>
+• Le proxy route les requêtes selon la complexité détectée ou le type d'agent.</p>
+</div>
+<div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'aide pour choisir l'architecture adaptée à votre cas ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
+`;}
+
+function renderSecurity(){
+const layers=[
+{n:1,name:"Réseau",color:"#EF4444",phase:"P0",detail:"Egress default-deny via nftables/iptables. Seules les API strictement nécessaires en allowlist (LLM providers, messaging APIs). Bind <code>127.0.0.1</code> — jamais <code>0.0.0.0</code>. Accès distant exclusivement via WireGuard ou Tailscale. Blocklist des C2 connus.",cmd:"# Vérifier le bind\\nnfables list ruleset | grep -i openclaw\\nss -tlnp | grep 18789  # Doit montrer 127.0.0.1, PAS 0.0.0.0"},
+{n:2,name:"Isolation",color:"#F59E0B",phase:"P0",detail:"Chaque instance dans son conteneur Docker/Podman ou VM dédiée. Utilisateur non-root dédié. Profils A/B/C pour séparer les agents par type. Sandboxing avancé : gVisor, AppArmor, profils Seccomp. Candidat : YoloBox (conteneur jetable, nuke-and-pave en 5s).",cmd:"# Vérifier que le process tourne en non-root\\nps aux | grep openclaw\\nid oc-devops  # UID dédié par agent"},
+{n:3,name:"Secrets",color:"#10B981",phase:"P0",detail:"Injection via coffre-fort (HashiCorp Vault, Doppler, SOPS) ou <code>openclaw secrets</code> natif (v2026.2.26+, SecretRef 64 cibles). Jamais en clair dans les configs, artefacts, ou repos. Rotation planifiée des clés API. Séparation credentials vs workspace dans les backups.",cmd:"# Audit secrets natif\\nopenclaw secrets audit\\n# Vérifier qu'aucun secret n'est en clair\\ngrep -r 'sk-\\|Bearer\\|token' ~/.openclaw/ --include='*.json'"},
+{n:4,name:"DM Policy",color:"#06B6D4",phase:"P0",detail:"<code>dmPolicy=\"pairing\"</code> systématique. Auditer avec <code>openclaw doctor</code>. Le mode <code>dmPolicy=\"open\"</code> avec <code>allowFrom: \"*\"</code> nécessite une justification écrite et un threat model dédié. Vérifier <code>heartbeat.directPolicy = 'block'</code> (BREAKING v2026.3.1 : default revenu à 'allow').",cmd:"# Audit DM policy\\nopenclaw doctor\\n# Vérifier directPolicy\\ncat ~/.openclaw/openclaw.json | grep directPolicy"},
+{n:5,name:"Audit Trail",color:"#8B5CF6",phase:"P1",detail:"Journal immuable de toutes les actions exécutées par chaque agent. Le Gateway écrit en JSON lines. Exporter vers Prometheus/Grafana ou ELK/Loki. Exigence conformité et post-mortem. Spans OpenTelemetry pour traçabilité.",cmd:"# Logs temps réel\\nopenclaw logs --follow\\n# Vérifier que les logs sont en JSON lines\\nhead -5 /tmp/openclaw/*.jsonl"},
+{n:6,name:"Network Sandbox",color:"#EF4444",phase:"P2",detail:"Network namespace par agent. Egress allowlist spécifique par agent (un agent CRM n'a pas besoin d'accéder à GitHub). DNS filtering. Traffic logging. Validé par les advisories Microsoft et Cyera.",cmd:"# Vérifier les namespaces réseau\\nip netns list\\n# Lister les règles egress par agent\\nnft list table inet agent_devops"},
+{n:7,name:"Confirmation Gate",color:"#F59E0B",phase:"P2",detail:"Actions destructrices (suppression, envoi, modification) nécessitent une validation humaine via mécanisme technique — pas une instruction prompt. Dry-run obligatoire. Visual diffs natif (v2026.3.1). Approval via Telegram ou Control UI. Le prompt N'EST PAS un garde-fou (leçon Summer Yue).",cmd:"# Vérifier le mode dry-run dans la config\\ncat ~/.openclaw/openclaw.json | grep -i dry"},
+{n:8,name:"Rate Limiting",color:"#06B6D4",phase:"P2",detail:"Plafonner les actions destructrices par unité de temps (ex: max 5 suppressions/min). Appliqué au niveau infrastructure (middleware, proxy, wrapper), pas au niveau prompt. Protège contre les boucles infinies et les agents emballés.",cmd:"# Monitoring des actions par minute\\ngrep 'action:delete\\|action:send' /tmp/openclaw/*.jsonl | \\\n  awk '{print substr($0,1,16)}' | uniq -c | sort -rn"},
+{n:9,name:"Kill Switch",color:"#EF4444",phase:"P2",detail:"Mécanisme d'arrêt d'urgence accessible depuis n'importe quel device (pas seulement la machine hôte). API d'arrêt, bouton Control UI via WireGuard/Tailscale, commande Telegram/Slack. Temps de réponse cible : <5 secondes.",cmd:"# Kill switch via CLI\\nopenclaw gateway stop\\n# Kill switch via API\\ncurl -X POST http://localhost:18789/api/shutdown -H 'Authorization: Bearer TOKEN'"},
+{n:10,name:"SecureClaw + Scanner",color:"#8B5CF6",phase:"P0",detail:"SecureClaw : plugin gateway-level (hors-contexte agent) + skill comportementale. 55 checks, 15 règles. OWASP ASI + MITRE ATLAS. Clawdex Scanner : vérifie les skills installées contre la base de skills malveillantes connues. Contrôle HORS du contexte de l'agent — ne peut pas être contourné par prompt injection.",cmd:"# Scanner les skills installées\\nopenclaw doctor\\n# Monitorer les anomalies (cron 4x/jour recommandé)\\n0 */6 * * * /usr/local/bin/security-check.sh"},
+];
+return`
+<div class="section-num">§3 — Defense in Depth</div>
+<div class="section-title">10 couches de sécurité — le cœur du guide</div>
+<div class="axiom">Principe fondamental : les instructions dans le system prompt de l'agent NE SONT PAS des contrôles de sécurité fiables. Le risque de compaction, de prompt injection, ou de dérive contextuelle peut faire "oublier" toute instruction. Chaque couche doit être implémentée HORS du contexte de l'agent.</div>
+<div class="card">${layers.map(l=>`
+<div class="layer">
+<div class="layer-num" style="background:${l.color}">${l.n}</div>
+<div class="layer-body">
+<div class="layer-title">${l.name} <span class="badge badge-purple">${l.phase}</span></div>
+<div class="layer-detail">${l.detail}</div>
+<div class="layer-cmd"><pre style="margin:0;padding:4px;border:none;background:transparent">${l.cmd}</pre></div>
+</div>
+</div>`).join("")}
+</div>
+<div class="callout-green callout">✅ Validation : chaque couche inclut une commande de test. Un déploiement production doit passer les 10 checks. Intégrez-les dans votre CI/CD ou vos runbooks Ansible.</div>
+<div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'implémenter ces 10 couches sur votre infrastructure ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
+`;}
+
+function renderHardware(){return`
+<div class="section-num">§4 — Dimensionnement Hardware & LLM</div>
+<div class="section-title">La bande passante mémoire est la métrique reine</div>
+
+<div class="card">
+<h3>Principes fondamentaux</h3>
+<p><strong>La bande passante mémoire, pas le compute.</strong> La génération de tokens est memory-bandwidth bound. Formule : tok/s ≈ bande passante mémoire (Go/s) ÷ taille modèle en VRAM (Go). Un GPU ancien avec haute bande passante peut battre un GPU récent.</p>
+<p><strong>La VRAM détermine ce que vous pouvez faire tourner.</strong> Règle de base : ~0.6 Go par milliard de paramètres en Q4. Attention aux modèles MoE : tous les experts doivent résider en VRAM même si seul un sous-ensemble est actif.</p>
+<p><strong>Le KV cache est le piège oublié.</strong> VRAM totale = poids modèle + (KV cache par slot × nombre de slots) + overhead système. Quantifier le KV cache (<code>--cache-type-k q4_0 --cache-type-v q4_0</code>) réduit significativement ce coût.</p>
+<p><strong>Ne jamais déployer un modèle qui ne tient pas entièrement en VRAM.</strong> Le spill en RAM système dégrade les performances de 5-10x sur GPU discret.</p>
+<p><strong>Le €/Go de VRAM est le ratio d'achat clé.</strong> Le marché de l'occasion offre souvent le meilleur rapport qualité/prix.</p>
+<p><strong>Quantization : Q4_K_M est le sweet spot</strong> (~75% plus compact que FP16, perte de qualité marginale). GGUF est le format universel.</p>
+</div>
+
+<div class="card">
+<h3>Comparatif runtimes d'inférence</h3>
+<table>
+<tr><th>Runtime</th><th>GPU supportés</th><th>Multi-GPU</th><th>Multi-user</th><th>Cas d'usage</th></tr>
+<tr><td><strong>Ollama</strong></td><td>NVIDIA, Apple Silicon, (AMD limité)</td><td>Non</td><td>Limité</td><td>Simple, single-user. Provider officiel OpenClaw (15/03/2026)</td></tr>
+<tr><td><strong>llama-server</strong></td><td>Tous, y compris hétérogènes</td><td>Oui (layer split)</td><td>Oui (multi-slots)</td><td>GPU mixtes, GGUF natif, production</td></tr>
+<tr><td><strong>vLLM</strong></td><td>NVIDIA identiques, AMD (ROCm)</td><td>Oui (tensor parallel)</td><td>Oui (production)</td><td>Throughput élevé, GPU identiques uniquement</td></tr>
+<tr><td><strong>TensorRT-LLM</strong></td><td>NVIDIA uniquement</td><td>Oui</td><td>Oui</td><td>Latence minimale NVIDIA</td></tr>
+<tr><td><strong>Exo</strong></td><td>Hétérogènes cross-device</td><td>Oui (distribué)</td><td>Limité</td><td>Clusters hétérogènes multi-machines</td></tr>
+</table>
+<div class="callout">⚠️ Si vos GPU sont hétérogènes (modèles ou marques différents), <strong>vLLM est exclu</strong> — il exige des GPU identiques. Utilisez llama-server (layer split) ou Exo (distribué). C'est un cas fréquent dans les builds d'occasion.</div>
+</div>
+
+<div class="card">
+<h3>Catégories hardware</h3>
+<p><strong>Tier 1 — Nœuds agents légers (pas de GPU) :</strong> Raspberry Pi, mini-PC fanless, Mac Mini base, VPS cloud. Consommation ultra-basse, fiabilité 24/7, coût minimal. Pointe vers un nœud d'inférence distant.</p>
+<p><strong>Tier 2 — Inférence locale single-GPU :</strong> PC SFF (compact, silencieux), PC gamer reconverti, Mac Mini/Studio (UMA, basse conso, RAM soudée). Le marché de l'occasion GPU est souvent le meilleur rapport qualité/prix.</p>
+<p><strong>Tier 3 — Serveurs d'inférence multi-GPU :</strong> Multi-GPU consumer (2-4 GPU), serveurs reconditionnés (EPYC, Xeon — souvent le meilleur rapport VRAM/prix), GPU pro occasion, Apple Silicon haute capacité, appliances IA (DGX Spark).</p>
+</div>
+
+<div class="card">
+<h3>Framework de dimensionnement — 12 critères</h3>
+<table>
+<tr><th>Critère</th><th>Questions à poser</th></tr>
+<tr><td>Budget TCO</td><td>Investissement + amortissement (3 ans) + électricité + maintenance vs coût API. Le local n'est pas toujours moins cher.</td></tr>
+<tr><td>Inférence locale obligatoire ?</td><td>Air-gap, compliance, privacy, indépendance ? Si non, l'API peut être plus simple.</td></tr>
+<tr><td>Modèle cible + contexte</td><td>Taille, quantization, contexte max ? VRAM = poids + (KV cache × slots) + overhead</td></tr>
+<tr><td>Concurrence</td><td>Combien de slots simultanés ? 1 = Ollama · 3-8 = llama-server · 10+ = vLLM ou split</td></tr>
+<tr><td>GPU identiques ou hétérogènes ?</td><td>Identiques → vLLM · Hétérogènes → llama-server ou Exo</td></tr>
+<tr><td>Bande passante mémoire</td><td>Comparer les Go/s entre options, pas les TFLOPS</td></tr>
+<tr><td>Consommation 24/7</td><td>Coût réel selon tarif électrique. Power-limit GPU pour optimiser.</td></tr>
+<tr><td>Bruit + facteur de forme</td><td>Domicile → SFF/fanless · Local technique → tour/rack · Datacenter → tout</td></tr>
+<tr><td>Upgrade path</td><td>Apple Silicon = RAM soudée · x86+GPU = upgradable</td></tr>
+<tr><td>Écosystème logiciel</td><td>macOS (Ollama/MLX) vs Linux (vLLM, TRT-LLM, Docker, ROCm)</td></tr>
+<tr><td>Neuf vs occasion</td><td>L'occasion offre souvent le meilleur €/Go VRAM. Évaluer systématiquement.</td></tr>
+<tr><td>Ollama vs llama-server</td><td>Ollama pour mono-GPU simple. llama-server pour multi-GPU, multi-slots, production.</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Pièges courants</h3>
+<p>• Sous-dimensionner la RAM Apple Silicon (non-upgradable)<br>
+• Ignorer le KV cache dans le calcul VRAM<br>
+• Utiliser vLLM avec des GPU différents<br>
+• Laisser un modèle spill en RAM en production<br>
+• CPU-only inference (5-10x plus lent, inacceptable 24/7)<br>
+• Sous-estimer l'électricité 24/7 (power-limit GPU recommandé)<br>
+• Ignorer la bande passante mémoire (c'est la métrique reine, pas les TFLOPS)<br>
+• ROCm AMD sans plan B (régressions documentées entre versions)<br>
+• Oublier le TCO réel (amortissement + électricité + maintenance + temps admin)</p>
+</div>
+<div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'un dimensionnement personnalisé pour votre infrastructure ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
+`;}
+
+function renderEcosystem(){return`
+<div class="section-num">§5 — Écosystème & Veille</div>
+<div class="section-title">OpenClaw et ses 15+ alternatives — mars 2026</div>
+
+<div class="card">
+<h3>État d'OpenClaw — 17 mars 2026</h3>
+<p>315K+ GitHub stars · 900+ contributeurs · Release quasi-quotidienne (v2026.3.13 le 14/03) · ContextEngine pluggable (v2026.3.7) · ACP durable bindings · Telegram topic isolation · Chrome DevTools attach · Ollama provider officiel (15/03) · openclaw backup CLI · Control UI v2 · Kubernetes manifests · Provider-plugin architecture (Ollama/vLLM/SGLang modulaires)</p>
+</div>
+
+<div class="card">
+<h3>Alternatives comparées</h3>
+<table>
+<tr><th>Projet</th><th>Stars</th><th>Langage</th><th>Différenciateur</th><th>Limites</th></tr>
+<tr><td><strong>ZeroClaw</strong></td><td>26.8K</td><td>Rust</td><td>3.4MB binaire, startup <10ms, 194× plus petit. Lit configs OpenClaw.</td><td>Écosystème plugins jeune</td></tr>
+<tr><td><strong>OpenFang</strong></td><td>21.5K</td><td>Rust</td><td>Agent OS complet, 7 "Hands" autonomes, agent isolation sandbox</td><td>v0.1.0, breaking changes possibles</td></tr>
+<tr><td><strong>Nanobot</strong></td><td>26.8K</td><td>Python</td><td>4000 lignes, pip install, knowledge graph, MCP natif</td><td>2 plateformes messagerie, pas de GUI</td></tr>
+<tr><td><strong>NanoClaw</strong></td><td>20K</td><td>TypeScript</td><td>Docker officiel. Container isolation par agent. 100K+ downloads.</td><td>Claude-only, WhatsApp-only</td></tr>
+<tr><td><strong>IronClaw</strong></td><td>3.2K</td><td>Rust</td><td>Sandbox WASM, TEE-backed, credential vaults chiffrés</td><td>Niche security/blockchain</td></tr>
+<tr><td><strong>PicoClaw</strong></td><td>6.4K</td><td>—</td><td>Tourne sur boards à $10, <10MB RAM, startup 1s</td><td>IoT/edge only</td></tr>
+<tr><td><strong>Moltis</strong></td><td>—</td><td>Rust</td><td>Enterprise multi-tenant, RBAC natif</td><td>Pas encore de communauté large</td></tr>
+<tr><td><strong>Hermes</strong></td><td>—</td><td>—</td><td>mTLS natif pour communications inter-agents cross-réseau</td><td>Niche réseau</td></tr>
+<tr><td><strong>Safeclaw</strong></td><td>~1K</td><td>—</td><td>Architecture NO-LLM. Zéro prompt injection by design.</td><td>Pas de raisonnement IA</td></tr>
+</table>
+<p style="margin-top:14px"><strong>Verdict :</strong> aucun ne rivalise avec OpenClaw en termes de features + communauté + écosystème. ZeroClaw est le meilleur plan B (migration directe). IronClaw et OpenFang sont les plus intéressants architecturalement. NanoClaw valide le pattern d'isolation conteneur avec le backing Docker.</p>
+</div>
+
+<div class="card">
+<h3>Fonctionnalités devenues natives (v2026.3.7 → 3.13)</h3>
+<p>L'écosystème OpenClaw a absorbé plusieurs patterns qui nécessitaient auparavant du développement custom :</p>
+<p>• <strong>ContextEngine pluggable</strong> (v2026.3.7) — gestion de contexte remplaçable par plugin (ex: lossless-claw pour compression sans perte)<br>
+• <strong>Telegram topic isolation</strong> (v2026.3.7) — un agent par topic dans un groupe forum, sans routing custom<br>
+• <strong>ACP durable bindings</strong> (v2026.3.7) — les bindings survivent aux redémarrages<br>
+• <strong>Chrome DevTools attach</strong> (v2026.3.13) — browser automation sur session signée, sans extensions<br>
+• <strong>openclaw backup create/verify</strong> (v2026.3.12) — backup natif avec validation<br>
+• <strong>Ollama provider officiel</strong> (v2026.3.12) — auto-découverte, zero-config<br>
+• <strong>Provider-plugin architecture</strong> (v2026.3.12) — Ollama/vLLM/SGLang modulaires<br>
+• <strong>sessions_yield</strong> (v2026.3.12) — orchestration multi-agent avancée</p>
+</div>
+
+<div class="card">
+<h3>Modèles LLM — mars 2026</h3>
+<p><strong>Co-leaders :</strong> Gemini 3.1 Pro et GPT-5.4 (Intelligence Index 57). Claude Opus 4.6 reste le roi de la prose naturelle.</p>
+<p><strong>Meilleur open source rapport qualité/prix :</strong> QwQ-32B (Apache 2.0, MATH-500 0.957, HumanEval 0.976).</p>
+<p><strong>Meilleur agentic open source :</strong> Seed-OSS-36B (ByteDance, agentic index 27.73).</p>
+<p><strong>Prix API :</strong> baisse de ~80% YoY. DeepSeek V3.2 à $0.28/$0.42/M tokens. Gemini Flash-Lite à $0.075/$0.30. Claude Opus 4.6 à $5/$25 (-67% vs précédent). Le local n'est plus automatiquement moins cher — calculer le TCO réel.</p>
+</div>
+<div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'un accompagnement pour choisir le bon modèle et le bon runtime ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
+`;}
+
+function renderChecklist(){
+const groups=[
+{title:"Pré-déploiement",items:[
+"Node.js ≥ 22.12.0 installé (patches CVE-2025-59466, CVE-2026-21636)",
+"OpenClaw ≥ v2026.3.12 (version minimum recommandée)",
+"Backup de l'état existant avant migration (openclaw backup create)",
+"Config openclaw.json validée (openclaw config validate --json)",
+"gateway.auth.mode défini explicitement si token ET password configurés (BREAKING v2026.3.7)",
+]},
+{title:"Configuration sécurité",items:[
+"bind: 127.0.0.1 (jamais 0.0.0.0)",
+"dmPolicy: pairing (pas 'open')",
+"heartbeat.directPolicy: block (BREAKING v2026.3.1: default = 'allow')",
+"agents.defaults.toolset forcé par profil (A='programming', B='messaging')",
+"ACP scheduling audité (activé par défaut v2026.3.2)",
+"OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1 si communication WireGuard LAN",
+]},
+{title:"Secrets",items:[
+"Aucun secret en clair dans ~/.openclaw/ (grep -r 'sk-' ~/.openclaw/)",
+"openclaw secrets audit exécuté — 0 warning",
+"Rotation des gateway tokens post-installation",
+"Credentials séparés du workspace dans les backups",
+"gocryptfs (ou équivalent) pour chiffrement at-rest de ~/.openclaw/",
+]},
+{title:"Réseau",items:[
+"WireGuard ou Tailscale pour accès distant (jamais d'exposition directe)",
+"Egress default-deny (nftables/iptables), allowlist API uniquement",
+"Blocklist C2 connus (91.92.242.0/24, openclawcli.vercel.app)",
+"Reverse proxy avec TLS si exposition nécessaire (Nginx/Caddy, TLSv1.2+ uniquement)",
+]},
+{title:"Post-déploiement",items:[
+"openclaw doctor — 0 warning",
+"openclaw config validate --json — pass",
+"/healthz retourne 200 sur chaque port gateway",
+"SOUL.md chargé et vérifié (vérifier via transcript, pas juste ls)",
+"BOOTSTRAP.md supprimé (Profil B)",
+"Profil B : openclaw agents list montre tous les agents + bindings",
+"Version vérifiée : openclaw --version ≥ v2026.3.12",
+]},
+{title:"Monitoring",items:[
+"Prometheus + Grafana (ou équivalent) scrape /healthz et métriques",
+"Alerting : redémarrages inattendus, latence anormale, saturation CPU/RAM",
+"Alerting : boucle infinie agent (saturation tokens), espace disque",
+"Logs centralisés (JSON lines → ELK/Loki/Datadog)",
+"Corrélation : logs systemd/journald + logs Gateway pendant incidents",
+]},
+{title:"Maintenance continue",items:[
+"Rolling updates Ansible (minimum hebdomadaire — cadence CVE ~1/semaine)",
+"openclaw backup verify après chaque backup",
+"Rotation planifiée des clés API LLM providers et messaging tokens",
+"Audit skills : revue de code manuelle avant tout déploiement ClawHub en prod",
+"Préférer skills custom maison aux skills communautaires non auditées",
+"Nuke and pave si agent corrompu : détruire et reconstruire, pas déboguer",
+]},
+];
+return`
+<div class="section-num">§6 — Checklist de déploiement</div>
+<div class="section-title">40+ vérifications avant la mise en production</div>
+<div class="card">
+<p style="font-size:12px;color:#666;margin-bottom:16px">Cliquez sur un item pour le cocher. Cette checklist ne persiste pas — copiez-la dans votre runbook.</p>
+${groups.map(g=>`
+<div class="check-group">
+<div class="check-group-title">${g.title}</div>
+${g.items.map((item,i)=>`<div class="check-item" onclick="this.classList.toggle('done')"><div class="check-box">✓</div><span>${item}</span></div>`).join("")}
+</div>`).join("")}
+</div>
+<div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'un playbook Ansible qui implémente cette checklist automatiquement ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
+`;}
+
+function renderLessons(){return`
+<div class="section-num">§7 — Leçons apprises</div>
+<div class="section-title">Ce qu'on a appris en production</div>
+
+<div class="card card-accent" style="border-left-color:#EF4444">
+<h3>Le prompt n'est pas un garde-fou</h3>
+<p>C'est la leçon la plus importante. L'incident Summer Yue / Meta (février 2026) a démontré qu'un agent peut "oublier" des instructions critiques quand son contexte se compresse. Dire à l'agent "confirme toujours avant d'agir" ne suffit pas — il peut oublier cette instruction après une longue conversation.</p>
+<p><strong>Solution :</strong> les 6 contrôles hors-contexte du §3 (confirmation gate, rate limiting, kill switch, dry-run, blast radius, rollback) doivent être implémentés au niveau infrastructure, pas au niveau prompt. Le plugin lossless-claw (ContextEngine, v2026.3.7) aide mais ne remplace pas les contrôles techniques.</p>
+</div>
+
+<div class="card card-accent" style="border-left-color:#F59E0B">
+<h3>La cadence tue si on ne s'y prépare pas</h3>
+<p>OpenClaw release environ une version par jour. Chaque release peut contenir des breaking changes (v2026.3.2 a cassé le toolset par défaut, v2026.3.7 a ajouté gateway.auth.mode obligatoire). Sans version pinning et staging, un rolling update automatique peut casser la production.</p>
+<p><strong>Solution :</strong> version pinning strict dans Ansible/IaC, staging avant production, <code>openclaw config validate --json</code> dans le pre-flight, plan de rollback documenté, <code>openclaw backup create</code> avant chaque update.</p>
+</div>
+
+<div class="card card-accent" style="border-left-color:#10B981">
+<h3>Supply chain : le piège ClawHub</h3>
+<p>~900 skills sur ClawHub (20% du registre) sont malveillantes : trojans, infostealers, keyloggers, backdoors. Le scan VirusTotal est actif depuis février 2026 mais ne détecte pas tout.</p>
+<p><strong>Solution :</strong> revue de code manuelle obligatoire avant tout déploiement en production d'une skill communautaire. Whitelist de skills approuvées. Préférer les skills custom maison. Le mode implicit workspace plugin auto-load est désactivé depuis v2026.3.12 — vérifier que votre version en bénéficie.</p>
+</div>
+
+<div class="card card-accent" style="border-left-color:#8B5CF6">
+<h3>Nuke and pave > debug</h3>
+<p>Les agents peuvent se corrompre ou dérailler. Leur mémoire peut être empoisonnée, leur comportement peut dériver. Déboguer un agent corrompu est plus risqué et plus long que de le reconstruire à l'identique.</p>
+<p><strong>Solution :</strong> automatiser les backups réguliers de l'état. Si une instance pose problème : détruire et reconstruire, pas déboguer. Les conteneurs jetables (pattern YoloBox) réduisent le temps de reconstruction à quelques secondes.</p>
+</div>
+
+<div class="card card-accent" style="border-left-color:#06B6D4">
+<h3>L'occasion hardware est souvent le meilleur deal</h3>
+<p>Le marché de l'occasion GPU offre des cartes d'ancienne génération avec beaucoup de VRAM et une haute bande passante à une fraction du prix neuf. L'écosystème CUDA est rétrocompatible, la fiabilité des GPU d'ancienne génération est prouvée (y compris les cartes ex-mining). Les serveurs reconditionnés (EPYC, Xeon) sont souvent le meilleur rapport VRAM totale / prix.</p>
+<p><strong>Solution :</strong> toujours évaluer le €/Go de VRAM en occasion avant de recommander du matériel neuf. Power-limit les GPU pour réduire la consommation 24/7 (impact marginal sur les tok/s).</p>
+</div>
+
+<div class="card card-accent" style="border-left-color:#EC4899">
+<h3>Le local n'est pas toujours moins cher que l'API</h3>
+<p>Avec la baisse de ~80% des prix API en 2025-2026, le calcul économique a changé. Un client à faible volume (quelques milliers de requêtes/jour) peut trouver l'API cloud moins chère que le TCO d'un serveur dédié (amortissement + électricité + maintenance + temps admin).</p>
+<p><strong>Solution :</strong> toujours chiffrer le TCO réel avant de recommander le local. Le local reste pertinent pour : privacy/air-gap, latence, indépendance, et volume élevé. L'architecture hybride (local pour les tâches courantes, cloud pour le raisonnement complexe) est souvent le meilleur compromis.</p>
+</div>
+
+<div class="axiom">OpenClaw est un outil puissant mais jeune, qui exécute du code de manière autonome avec des identifiants persistants. Chaque recommandation doit refléter cette réalité. La sécurité n'est pas une instruction dans un prompt. C'est une architecture.</div>
+<div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'accompagnement pour votre déploiement ? Formation, audit, implémentation — <a href="https://www.linkedin.com/in/hemersonkoffi/">contactez HKCONSEILS</a></span></div>
+`;}
+
+// ═══════════════════════════════════
+//  RENDER ENGINE
+// ═══════════════════════════════════
+
+const renderers={intro:renderIntro,threat:renderThreat,archi:renderArchi,security:renderSecurity,hardware:renderHardware,ecosystem:renderEcosystem,checklist:renderChecklist,lessons:renderLessons};
+
+function init(){
+  const nav=document.getElementById("nav");
+  const main=document.getElementById("main");
+  TABS.forEach((t,i)=>{
+    const btn=document.createElement("button");
+    btn.className="nav-btn"+(i===0?" active":"");
+    btn.textContent=t.icon+" "+t.label;
+    btn.onclick=()=>{
+      document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+      document.getElementById("sec-"+t.id).classList.add("active");
+    };
+    nav.appendChild(btn);
+    const sec=document.createElement("div");
+    sec.id="sec-"+t.id;
+    sec.className="section"+(i===0?" active":"");
+    sec.innerHTML=renderers[t.id]();
+    main.appendChild(sec);
+  });
+}
+init();
+</script>
+</body>
+</html>
