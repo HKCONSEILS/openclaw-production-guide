@@ -209,7 +209,7 @@ code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg-c
 </div>
 <div class="hdr-sub">Defense in depth · 10 couches sécurité · Dimensionnement hardware · Architecture de référence · Checklist production — 17 mars 2026</div>
 <div class="hdr-badges">
-<span class="badge badge-red">COMMUNITY EDITION v1.1.0</span>
+<span class="badge badge-red">COMMUNITY EDITION v1.2.0</span>
 <span class="badge badge-green">CC BY-SA 4.0</span>
 <span class="badge badge-purple">OpenClaw v2026.3.13</span>
 <span class="badge badge-amber">17 mars 2026</span>
@@ -230,7 +230,7 @@ code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg-c
 <a href="https://www.linkedin.com/in/hemersonkoffi/">HKCONSEILS — Hemerson K.</a> · 
 <a href="https://github.com/HKCONSEILS/openclaw-production-guide">GitHub</a> · 
 CC BY-SA 4.0 · 
-v1.1.0 — 17 mars 2026
+v1.2.0 — 17 mars 2026
 </div>
 </div>
 
@@ -246,7 +246,17 @@ function setTheme(t){
     b.style.transform=b.getAttribute('data-t')===t?'scale(1.2)':'scale(1)';
   });
 }
-(function(){try{var t=localStorage.getItem('oc-guide-theme');if(t)setTheme(t)}catch(e){}})();
+// Auto-detect: 1) localStorage (choix manuel), 2) prefers-color-scheme (OS/navigateur), 3) dark (défaut)
+(function(){
+  try{var saved=localStorage.getItem('oc-guide-theme');if(saved){setTheme(saved);return}}catch(e){}
+  if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:light)').matches){setTheme('light');return}
+  setTheme('dark');
+})();
+// Écoute les changements de préférence OS en temps réel (ex: macOS auto dark mode au coucher du soleil)
+try{window.matchMedia('(prefers-color-scheme:light)').addEventListener('change',function(e){
+  try{if(localStorage.getItem('oc-guide-theme'))return}catch(x){}
+  setTheme(e.matches?'light':'dark');
+})}catch(e){}
 </script>
 
 <script>

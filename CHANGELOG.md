@@ -10,6 +10,18 @@ sessions de travail avec Claude (Anthropic).
 
 ---
 
+## [1.2.0] — 2026-03-17
+
+### Added
+- Détection automatique du thème navigateur/OS via `prefers-color-scheme`
+- Écoute en temps réel des changements de préférence OS (ex: dark mode automatique au coucher du soleil sur macOS)
+
+### Changed
+- Logique d'initialisation thème : 1) choix manuel (localStorage), 2) préférence OS, 3) dark par défaut
+- Un visiteur en mode clair voit le guide en thème clair automatiquement, sans action
+
+---
+
 ## [1.1.0] — 2026-03-17
 
 ### Added
