@@ -10,6 +10,19 @@ sessions de travail avec Claude (Anthropic).
 
 ---
 
+## [1.3.0] — 2026-03-19
+
+### Added
+- Paysage Enterprise OpenClaw : table comparative NemoClaw (NVIDIA), MaxClaw (MiniMax), RyzenClaw/RadeonClaw (AMD), ArkClaw (ByteDance), KimiClaw (Moonshot)
+- Citation Jensen Huang GTC : "OpenClaw is the OS for personal AI"
+- Analyse des implications pour le déploiement on-prem souverain
+
+### Changed
+- Date mise à jour 19 mars 2026 (OpenClaw v2026.3.13)
+- Section Écosystème enrichie avec le paysage enterprise
+
+---
+
 ## [1.2.0] — 2026-03-17
 
 ### Added

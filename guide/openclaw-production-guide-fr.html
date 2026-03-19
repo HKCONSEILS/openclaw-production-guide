@@ -209,10 +209,10 @@ code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg-c
 </div>
 <div class="hdr-sub">Defense in depth · 10 couches sécurité · Dimensionnement hardware · Architecture de référence · Checklist production — 17 mars 2026</div>
 <div class="hdr-badges">
-<span class="badge badge-red">COMMUNITY EDITION v1.2.0</span>
+<span class="badge badge-red">COMMUNITY EDITION v1.3.0</span>
 <span class="badge badge-green">CC BY-SA 4.0</span>
 <span class="badge badge-purple">OpenClaw v2026.3.13</span>
-<span class="badge badge-amber">17 mars 2026</span>
+<span class="badge badge-amber">19 mars 2026</span>
 </div>
 </div>
 </div>
@@ -230,7 +230,7 @@ code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg-c
 <a href="https://www.linkedin.com/in/hemersonkoffi/">HKCONSEILS — Hemerson K.</a> · 
 <a href="https://github.com/HKCONSEILS/openclaw-production-guide">GitHub</a> · 
 CC BY-SA 4.0 · 
-v1.2.0 — 17 mars 2026
+v1.3.0 — 19 mars 2026
 </div>
 </div>
 
@@ -540,6 +540,21 @@ function renderEcosystem(){return`
 <tr><td><strong>Safeclaw</strong></td><td>~1K</td><td>—</td><td>Architecture NO-LLM. Zéro prompt injection by design.</td><td>Pas de raisonnement IA</td></tr>
 </table>
 <p style="margin-top:14px"><strong>Verdict :</strong> aucun ne rivalise avec OpenClaw en termes de features + communauté + écosystème. ZeroClaw est le meilleur plan B (migration directe). IronClaw et OpenFang sont les plus intéressants architecturalement. NanoClaw valide le pattern d'isolation conteneur avec le backing Docker.</p>
+</div>
+
+<div class="card card-accent" style="border-left-color:#F59E0B">
+<h3>🆕 Paysage Enterprise — 5 géants en 3 semaines (mars 2026)</h3>
+<p>NVIDIA, AMD, MiniMax, ByteDance et Moonshot ont tous lancé leur version enterprise d'OpenClaw. Jensen Huang (GTC, 16 mars) : <em>"Mac et Windows sont les OS du PC. OpenClaw est l'OS de l'IA personnelle. Chaque entreprise a besoin d'une stratégie OpenClaw."</em></p>
+<table>
+<tr><th>Solution</th><th>Par</th><th>Modèle</th><th>Approche</th><th>Limites</th></tr>
+<tr><td><strong>NemoClaw</strong></td><td>NVIDIA</td><td>Nemotron (local) + cloud via privacy router</td><td>Sandbox OpenShell, hardware agnostic, alpha</td><td>Alpha early-stage, rough edges</td></tr>
+<tr><td><strong>MaxClaw</strong></td><td>MiniMax</td><td>M2.5 (229B MoE, 10B actifs)</td><td>Cloud managed, déploiement 10s, Feishu/DingTalk</td><td>Model-locked, données chez MiniMax, cloud-only</td></tr>
+<tr><td><strong>RyzenClaw</strong></td><td>AMD</td><td>Qwen 3.5 35B via llama.cpp</td><td>Config WSL2 optimisée, 128 Go UMA, ~45 tok/s</td><td>Config spécifique, pas de packaging</td></tr>
+<tr><td><strong>RadeonClaw</strong></td><td>AMD</td><td>Qwen 3.5 35B via llama.cpp</td><td>Radeon AI PRO R9700, ~120 tok/s</td><td>GPU dédié, ROCm requis</td></tr>
+<tr><td><strong>ArkClaw</strong></td><td>ByteDance</td><td>—</td><td>Browser-based, zero setup</td><td>Peu de détails publics</td></tr>
+<tr><td><strong>KimiClaw</strong></td><td>Moonshot AI</td><td>Kimi K2.5 (1T MoE)</td><td>Browser-based, 5000+ skills, 40 Go cloud</td><td>Cloud-only, model-locked</td></tr>
+</table>
+<p><strong>Pour le déploiement on-prem souverain :</strong> aucune de ces solutions ne remplace un déploiement self-hosted maîtrisé. NemoClaw est la plus proche mais encore en alpha. MaxClaw et KimiClaw sont cloud-only. AMD fournit des configs de référence mais pas de packaging. Le guide que vous lisez couvre exactement ce gap.</p>
 </div>
 
 <div class="card">
