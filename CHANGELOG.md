@@ -10,6 +10,30 @@ sessions de travail avec Claude (Anthropic).
 
 ---
 
+## [1.4.0] — 2026-03-25
+
+### Added
+- 🚨 Alerte supply chain LiteLLM (24/03) : v1.82.7/8 compromises, leçon et recommandations
+- Cisco DefenseClaw dans la table enterprise (RSA Conference 23/03, GitHub 27/03)
+- OpenClaw v2026.3.22 : 12 breaking changes, 30+ security patches, ClawHub par défaut
+- ZeroClaw v0.6.1 (desktop app Tauri, Alibaba Cloud, TOTP)
+- OpenFang v0.3.30 (objectif v1.0 mi-2026)
+- Nanobot drop LiteLLM → SDKs natifs (signal prescient 21/03)
+- llama.cpp MCP client natif (--webui-mcp-proxy)
+- vLLM v0.17.0 ROCm first-class (93% CI pass)
+- Ollama v0.17.5 (cloud offloading, thinking models)
+- Nouvelle leçon : "Supply chain, ça n'arrive pas qu'aux skills"
+- 3 nouveaux items checklist (LiteLLM pin, CLAWDBOT_* cleanup, openclaw doctor --fix)
+
+### Changed
+- Version minimum recommandée relevée de v2026.3.12 → v2026.3.22
+- Table enterprise : 6 → 7 solutions (+ DefenseClaw Cisco)
+- Table alternatives : versions mises à jour (ZeroClaw v0.6.1, OpenFang v0.3.30, Nanobot drop LiteLLM)
+- Table runtimes : versions mises à jour (Ollama v0.17.5, llama.cpp b8200+, vLLM v0.17.0)
+- Date mise à jour 25 mars 2026 (OpenClaw v2026.3.23)
+
+---
+
 ## [1.3.0] — 2026-03-19
 
 ### Added
