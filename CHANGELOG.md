@@ -10,6 +10,26 @@ sessions de travail avec Claude (Anthropic).
 
 ---
 
+## [1.5.0] — 2026-04-02
+
+### Added
+- Nouvelle section : "Identité des agents IA — le prochain chantier critique"
+  - Standards émergents : IETF draft-klrc-aiagent-auth-01 (AWS+OpenAI+Ping), SPIFFE/SPIRE, Sigilum, AIP
+  - Stack recommandé : SPIFFE per-agent + proxy LLM auth + audit trail attributable + DefenseClaw
+  - Stat : 93% frameworks = clés API non-scopées, 0% per-agent identity (Adversa AI)
+- Nouveau groupe checklist : "Identité agents (recommandé)" — 6 items
+- LiteLLM forensics enrichies : chaîne TeamPCP (Trivy→KICS→LiteLLM), hackerbot-claw (agent IA offensif), 36% cloud environments
+- Cisco DefenseClaw marqué LIVE sur GitHub (27/03)
+- OpenClaw v2026.3.24 : OpenAI compat, Teams SDK refondu, CLI --container, openclaw config schema
+- Microsoft Agent 365 (GA 1er mai) mentionné dans le paysage enterprise
+
+### Changed
+- État OpenClaw : 341K+ stars, 67K+ forks, v2026.3.24
+- Date mise à jour 2 avril 2026
+- Leçon supply chain enrichie avec forensics TeamPCP détaillées
+
+---
+
 ## [1.4.0] — 2026-03-25
 
 ### Added

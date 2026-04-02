@@ -207,12 +207,12 @@ code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg-c
 <div class="theme-btn" data-t="light" onclick="setTheme('light')" title="Clair"></div>
 </div>
 </div>
-<div class="hdr-sub">Defense in depth · 10 couches sécurité · Dimensionnement hardware · Architecture de référence · Checklist production — 25 mars 2026</div>
+<div class="hdr-sub">Defense in depth · 10 couches sécurité · Dimensionnement hardware · Architecture de référence · Checklist production — 2 avril 2026</div>
 <div class="hdr-badges">
-<span class="badge badge-red">COMMUNITY EDITION v1.4.0</span>
+<span class="badge badge-red">COMMUNITY EDITION v1.5.0</span>
 <span class="badge badge-green">CC BY-SA 4.0</span>
-<span class="badge badge-purple">OpenClaw v2026.3.23</span>
-<span class="badge badge-amber">25 mars 2026</span>
+<span class="badge badge-purple">OpenClaw v2026.3.24</span>
+<span class="badge badge-amber">2 avril 2026</span>
 </div>
 </div>
 </div>
@@ -230,7 +230,7 @@ code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg-c
 <a href="https://www.linkedin.com/in/hemersonkoffi/">HKCONSEILS — Hemerson K.</a> · 
 <a href="https://github.com/HKCONSEILS/openclaw-production-guide">GitHub</a> · 
 CC BY-SA 4.0 · 
-v1.4.0 — 25 mars 2026
+v1.5.0 — 2 avril 2026
 </div>
 </div>
 
@@ -288,7 +288,7 @@ function renderIntro(){return`
 <p>Ce guide documente comment déployer OpenClaw en production de manière sécurisée. Il est issu d'un travail interne mené par <a href="https://www.linkedin.com/in/hemersonkoffi/">HKCONSEILS</a> depuis le 27 février 2026 sur une infrastructure bare-metal réelle : serveur multi-GPU, fleet de mini-PCs agents, inférence locale, defense in depth 10 couches.</p>
 <p>C'est la version publique et sanitisée de ce travail. Les détails commerciaux, les configurations spécifiques et les identités des agents restent confidentiels.</p>
 </div>
-<div class="callout">⚠️ OpenClaw évolue chaque jour. Ce guide est daté du 25 mars 2026 (OpenClaw v2026.3.23). Vérifiez toujours contre <a href="https://docs.openclaw.ai">docs.openclaw.ai</a>. Les auteurs ne sont pas affiliés au projet OpenClaw.</div>
+<div class="callout">⚠️ OpenClaw évolue chaque jour. Ce guide est daté du 2 avril 2026 (OpenClaw v2026.3.24). Vérifiez toujours contre <a href="https://docs.openclaw.ai">docs.openclaw.ai</a>. Les auteurs ne sont pas affiliés au projet OpenClaw.</div>
 <div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'aide pour implémenter ce guide sur votre infrastructure ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
 `;}
 
@@ -523,8 +523,8 @@ function renderEcosystem(){return`
 <div class="section-title">OpenClaw et ses 15+ alternatives — mars 2026</div>
 
 <div class="card">
-<h3>État d'OpenClaw — 25 mars 2026</h3>
-<p>331K+ GitHub stars · 1243+ contributeurs · v2026.3.23-2 (npm 24/03) · v2026.3.22 : 12 breaking changes, ClawHub remplace npm comme registre, 30+ security patches, session cleanup, sub-agents multi-modèle, /btw side conversations · Chrome extension relay supprimé (v2026.3.23) · ContextEngine pluggable · ACP durable bindings · Telegram topic isolation · Ollama provider officiel · openclaw backup CLI · Provider-plugin architecture</p>
+<h3>État d'OpenClaw — 2 avril 2026</h3>
+<p>341K+ GitHub stars · 67K+ forks · 1243+ contributeurs · v2026.3.24 (25/03) · v2026.3.22 : 12 breaking changes, ClawHub registre par défaut, 30+ security patches, session cleanup, sub-agents multi-modèle · v2026.3.24 : OpenAI compat (/v1/models, /v1/embeddings), Teams SDK refondu, CLI --container Docker/Podman, openclaw config schema · ContextEngine pluggable · Ollama provider officiel · Provider-plugin architecture</p>
 <div class="callout-red callout">🚨 v2026.3.22 : 12 breaking changes. <code>CLAWDBOT_*</code> et <code>MOLTBOT_*</code> env vars supprimées sans shim. Qwen provider renommé "Qwen (Alibaba Cloud Model Studio)". ClawHub remplace npm comme registre par défaut. Exécuter <code>openclaw doctor --fix</code> après upgrade.</div>
 </div>
 
@@ -551,7 +551,7 @@ function renderEcosystem(){return`
 <table>
 <tr><th>Solution</th><th>Par</th><th>Modèle</th><th>Approche</th><th>Limites</th></tr>
 <tr><td><strong>NemoClaw</strong></td><td>NVIDIA</td><td>Nemotron (local) + cloud via privacy router</td><td>Sandbox OpenShell (Landlock+seccomp+netns), policy YAML deny-by-default, hardware agnostic, alpha</td><td>Alpha early-stage, rough edges</td></tr>
-<tr><td><strong>DefenseClaw</strong></td><td>Cisco</td><td>—</td><td>Couche opérationnelle au-dessus OpenShell. Skills Scanner + MCP Scanner + AI BoM + CodeGuard. Blocking 2s sans restart. Télémétrie Splunk.</td><td>Dépend de NemoClaw/OpenShell. GitHub 27/03.</td></tr>
+<tr><td><strong>DefenseClaw</strong></td><td>Cisco</td><td>—</td><td>Couche opérationnelle au-dessus OpenShell. Skills Scanner + MCP Scanner + AI BoM + CodeGuard. Blocking 2s sans restart. Télémétrie Splunk. <strong>LIVE sur GitHub</strong> (27/03).</td><td>Dépend de NemoClaw/OpenShell.</td></tr>
 <tr><td><strong>MaxClaw</strong></td><td>MiniMax</td><td>M2.5 (229B MoE, 10B actifs)</td><td>Cloud managed, déploiement 10s, Feishu/DingTalk</td><td>Model-locked, données chez MiniMax, cloud-only</td></tr>
 <tr><td><strong>RyzenClaw</strong></td><td>AMD</td><td>Qwen 3.5 35B via llama.cpp</td><td>Config WSL2 optimisée, 128 Go UMA, ~45 tok/s</td><td>Config spécifique, pas de packaging</td></tr>
 <tr><td><strong>RadeonClaw</strong></td><td>AMD</td><td>Qwen 3.5 35B via llama.cpp</td><td>Radeon AI PRO R9700, ~120 tok/s</td><td>GPU dédié, ROCm requis</td></tr>
@@ -559,6 +559,24 @@ function renderEcosystem(){return`
 <tr><td><strong>KimiClaw</strong></td><td>Moonshot AI</td><td>Kimi K2.5 (1T MoE)</td><td>Browser-based, 5000+ skills, 40 Go cloud</td><td>Cloud-only, model-locked</td></tr>
 </table>
 <p><strong>Pour le déploiement on-prem souverain :</strong> aucune de ces solutions ne remplace un déploiement self-hosted maîtrisé. NemoClaw est la plus proche mais encore en alpha. MaxClaw et KimiClaw sont cloud-only. AMD fournit des configs de référence mais pas de packaging. Le guide que vous lisez couvre exactement ce gap.</p>
+</div>
+
+<div class="card card-accent" style="border-left-color:#8B5CF6">
+<h3>🆕 Identité des agents IA — le prochain chantier critique</h3>
+<p>RSA Conference 2026 a fait de l'identité des agents IA son thème dominant. Le constat est brutal : <strong>93% des frameworks d'agents IA utilisent des clés API non-scopées, 0% ont une identité per-agent, et 97% n'ont pas de mécanisme de consentement utilisateur</strong> (audit Adversa AI, avril 2026). Quand un agent est compromis, l'attaquant hérite de toutes les clés qu'il détient.</p>
+<p>L'attaque supply chain LiteLLM (24 mars 2026) a illustré le problème : le proxy centralisé détenait les clés API de tous les providers LLM. Une seule compromission = accès total. Le composant "hackerbot-claw" de TeamPCP a même utilisé un agent OpenClaw comme outil offensif pour du ciblage automatisé — le premier cas documenté d'agent IA utilisé dans une attaque supply chain.</p>
+<h3>Les standards émergents</h3>
+<p><strong>IETF draft-klrc-aiagent-auth-01</strong> (30 mars 2026, co-auteurs AWS + OpenAI + Ping Identity) — le document de référence. Message clé : ne pas inventer de nouveau protocole, réutiliser SPIFFE/WIMSE/OAuth/mTLS. Les credentials agents doivent être short-lived, avec rotation autonome. L'identité agent est un workload identity, pas une identité humaine.</p>
+<p><strong>SPIFFE/SPIRE</strong> (CNCF graduated) — standard d'identité workload. Chaque agent reçoit un SVID (SPIFFE Verifiable Identity Document) avec mTLS automatique. Recommandé par le draft IETF. Production-proven, mature, pas de dépendance blockchain.</p>
+<p><strong>Sigilum</strong> (PaymanAI, Apache 2.0) — registre d'identité agents IA avec keypairs Ed25519, DID on-chain, passkey humaine, et gateway locale qui détient les secrets. Concept excellent mais projet très jeune (2 stars, inactif depuis février 2026). Le <em>pattern</em> est réplicable sans la dépendance.</p>
+<p><strong>Agent Identity Protocol (AIP)</strong> — DID + trust graph cross-plateformes basé sur W3C. Plus standard que Sigilum mais moins intégré OpenClaw.</p>
+<h3>Recommandation pour le déploiement on-prem</h3>
+<p>Le stack recommandé pour sécuriser l'identité des agents en production :</p>
+<p>• <strong>SPIFFE/SPIRE</strong> pour l'identité workload per-agent (mTLS automatique, certs short-lived)<br>
+• <strong>Proxy LLM avec auth per-agent</strong> — chaque agent s'authentifie avec son propre token/cert auprès du proxy. Les clés API LLM restent dans le proxy, pas chez l'agent<br>
+• <strong>Audit trail attributable</strong> — chaque action signée, quel agent, approuvé par qui, quand<br>
+• <strong>DefenseClaw</strong> pour le scanning et la governance des skills/MCP</p>
+<p>Ce pattern transforme le proxy LLM d'un point de défaillance unique (toutes les clés au même endroit) en un gateway de sécurité (authentification, autorisation, audit). C'est la même philosophie que NemoClaw's privacy router, appliquée aux credentials.</p>
 </div>
 
 <div class="card">
@@ -643,6 +661,14 @@ const groups=[
 "Préférer skills custom maison aux skills communautaires non auditées",
 "Nuke and pave si agent corrompu : détruire et reconstruire, pas déboguer",
 ]},
+{title:"Identité agents (recommandé)",items:[
+"Chaque agent authentifié par token/cert unique auprès du proxy LLM (pas d'accès unifié)",
+"Les clés API LLM restent dans le proxy, jamais dans la config agent (~/.openclaw/)",
+"Audit trail attributable : chaque action API loggée avec l'identité de l'agent appelant",
+"Révocation granulaire : pouvoir couper un agent sans révoquer les clés API ni casser les autres",
+"Évaluer SPIFFE/SPIRE pour identité workload per-agent (mTLS automatique, certs short-lived)",
+"Évaluer DefenseClaw (defenseclaw skill scan all) comme complément scanning skills",
+]},
 ];
 return`
 <div class="section-num">§6 — Checklist de déploiement</div>
@@ -700,9 +726,10 @@ function renderLessons(){return`
 
 <div class="card card-accent" style="border-left-color:#F43F5E">
 <h3>🆕 Supply chain : ça n'arrive pas qu'aux skills</h3>
-<p>Le 24 mars 2026, LiteLLM — le proxy LLM le plus utilisé (95M downloads/mois PyPI) — a été compromis via une attaque supply chain. Les versions v1.82.7 et v1.82.8 contenaient un payload malveillant dans proxy_server.py, injecté via un pipeline CI/CD compromis (Trivy). Google Mandiant a été engagé pour l'analyse forensique. Toutes les releases sont pausées.</p>
-<p>Le projet Nanobot (HKU) avait remplacé LiteLLM par des SDKs natifs OpenAI + Anthropic le 21 mars — 3 jours avant l'attaque. Coïncidence ou anticipation, le signal est clair : les dépendances intermédiaires sont des vecteurs d'attaque.</p>
-<p><strong>Solution :</strong> version pinning strict sur TOUTE la stack, pas seulement OpenClaw. Cela inclut les proxys LLM, les runtimes d'inférence, et les outils CI/CD. Minimiser les dépendances intermédiaires quand les SDKs natifs suffisent. Ne jamais tirer de <code>:latest</code> en production. Surveiller les advisories de sécurité de chaque composant de la chaîne.</p>
+<p>Le 24 mars 2026, LiteLLM — le proxy LLM le plus utilisé (95M downloads/mois PyPI, présent dans 36% des environnements cloud) — a été compromis via une attaque supply chain. Les versions v1.82.7 et v1.82.8 contenaient un payload malveillant en 3 phases : récolte de credentials (SSH, cloud, K8s, wallets), mouvement latéral Kubernetes (pods privilégiés), et backdoor systemd persistante.</p>
+<p>La chaîne d'attaque est remarquable : le groupe TeamPCP a d'abord compromis Trivy (scanner de sécurité, 19 mars), puis Checkmarx KICS (23 mars), puis LiteLLM (24 mars) — en utilisant les credentials volées à chaque étape pour atteindre la suivante. Plus inquiétant encore : un composant nommé "hackerbot-claw" utilisait un agent OpenClaw comme outil offensif pour du ciblage automatisé — le premier cas documenté d'agent IA dans une attaque supply chain.</p>
+<p>Le projet Nanobot (HKU) avait remplacé LiteLLM par des SDKs natifs OpenAI + Anthropic le 21 mars — 3 jours avant l'attaque.</p>
+<p><strong>Solution :</strong> version pinning strict sur TOUTE la stack, pas seulement OpenClaw. Minimiser les dépendances intermédiaires quand les SDKs natifs suffisent. Ne jamais tirer de <code>:latest</code> en production. Séparer les secrets des agents : les clés API doivent rester dans un proxy/gateway, pas dans la config de l'agent. Voir la section "Identité des agents IA" pour le pattern recommandé.</p>
 </div>
 
 <div class="axiom">OpenClaw est un outil puissant mais jeune, qui exécute du code de manière autonome avec des identifiants persistants. Chaque recommandation doit refléter cette réalité. La sécurité n'est pas une instruction dans un prompt. C'est une architecture.</div>
