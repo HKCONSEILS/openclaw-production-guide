@@ -10,6 +10,26 @@ sessions de travail avec Claude (Anthropic).
 
 ---
 
+## [1.6.0] — 2026-04-04
+
+### Added
+- TurboQuant (Google Research) : nouvelle section dans runtimes — compression KV cache 3-bit, 6x mémoire, 8x attention, code Q2 2026
+- Microsoft Agent 365 dans le tableau enterprise (GA 1er mai 2026)
+- Gemma 4 26B MoE mentionné comme candidat worker léger
+- Leaderboard LLM avril 2026 : GLM-5, Qwen3.5-397B, Kimi K2.5, Qwen3.6 Plus (1M ctx)
+
+### Changed
+- État OpenClaw : 347K+ stars, 69K+ forks, 172 startups, 13 729 skills, v2026.4.2
+- v2026.4.1 : /tasks natif, SearXNG bundlé, exec hardening, skills fail-closed
+- v2026.4.2 : Durable Task Flow, provider hardening, xAI plugin migration
+- LiteLLM alert mise à jour : v1.83.0 safe (CI/CD v2), upgrade possible après audit
+- TeamPCP campagne élargie : + Axios npm (30/03) + CanisterWorm (ICP C2) + Telnyx
+- Runtimes : Ollama v0.17.5 → v0.20.2 (Gemma 4), llama.cpp → b8660 (CUDA 13.1, NVFP4, MTP)
+- Section LLM restructurée (avril 2026, Unsloth Dynamic 2.0, TurboQuant)
+- Date mise à jour 4 avril 2026
+
+---
+
 ## [1.5.0] — 2026-04-02
 
 ### Added

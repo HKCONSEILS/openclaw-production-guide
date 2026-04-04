@@ -207,12 +207,12 @@ code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg-c
 <div class="theme-btn" data-t="light" onclick="setTheme('light')" title="Clair"></div>
 </div>
 </div>
-<div class="hdr-sub">Defense in depth · 10 couches sécurité · Dimensionnement hardware · Architecture de référence · Checklist production — 2 avril 2026</div>
+<div class="hdr-sub">Defense in depth · 10 couches sécurité · Dimensionnement hardware · Architecture de référence · Checklist production — 4 avril 2026</div>
 <div class="hdr-badges">
-<span class="badge badge-red">COMMUNITY EDITION v1.5.0</span>
+<span class="badge badge-red">COMMUNITY EDITION v1.6.0</span>
 <span class="badge badge-green">CC BY-SA 4.0</span>
-<span class="badge badge-purple">OpenClaw v2026.3.24</span>
-<span class="badge badge-amber">2 avril 2026</span>
+<span class="badge badge-purple">OpenClaw v2026.4.2</span>
+<span class="badge badge-amber">4 avril 2026</span>
 </div>
 </div>
 </div>
@@ -230,7 +230,7 @@ code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg-c
 <a href="https://www.linkedin.com/in/hemersonkoffi/">HKCONSEILS — Hemerson K.</a> · 
 <a href="https://github.com/HKCONSEILS/openclaw-production-guide">GitHub</a> · 
 CC BY-SA 4.0 · 
-v1.5.0 — 2 avril 2026
+v1.6.0 — 4 avril 2026
 </div>
 </div>
 
@@ -288,7 +288,7 @@ function renderIntro(){return`
 <p>Ce guide documente comment déployer OpenClaw en production de manière sécurisée. Il est issu d'un travail interne mené par <a href="https://www.linkedin.com/in/hemersonkoffi/">HKCONSEILS</a> depuis le 27 février 2026 sur une infrastructure bare-metal réelle : serveur multi-GPU, fleet de mini-PCs agents, inférence locale, defense in depth 10 couches.</p>
 <p>C'est la version publique et sanitisée de ce travail. Les détails commerciaux, les configurations spécifiques et les identités des agents restent confidentiels.</p>
 </div>
-<div class="callout">⚠️ OpenClaw évolue chaque jour. Ce guide est daté du 2 avril 2026 (OpenClaw v2026.3.24). Vérifiez toujours contre <a href="https://docs.openclaw.ai">docs.openclaw.ai</a>. Les auteurs ne sont pas affiliés au projet OpenClaw.</div>
+<div class="callout">⚠️ OpenClaw évolue chaque jour. Ce guide est daté du 4 avril 2026 (OpenClaw v2026.4.2). Vérifiez toujours contre <a href="https://docs.openclaw.ai">docs.openclaw.ai</a>. Les auteurs ne sont pas affiliés au projet OpenClaw.</div>
 <div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'aide pour implémenter ce guide sur votre infrastructure ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
 `;}
 
@@ -468,13 +468,17 @@ function renderHardware(){return`
 <h3>Comparatif runtimes d'inférence</h3>
 <table>
 <tr><th>Runtime</th><th>GPU supportés</th><th>Multi-GPU</th><th>Multi-user</th><th>Cas d'usage</th></tr>
-<tr><td><strong>Ollama</strong></td><td>NVIDIA, Apple Silicon, (AMD limité)</td><td>Non</td><td>Limité</td><td>Simple, single-user. Provider officiel OpenClaw. 🆕 v0.17.5 : cloud offloading, thinking models.</td></tr>
-<tr><td><strong>llama-server</strong></td><td>Tous, y compris hétérogènes</td><td>Oui (layer split)</td><td>Oui (multi-slots)</td><td>GPU mixtes, GGUF natif, production. 🆕 b8200+ : MCP client natif (--webui-mcp-proxy), optimisations Qwen 3.5.</td></tr>
+<tr><td><strong>Ollama</strong></td><td>NVIDIA, Apple Silicon, (AMD limité)</td><td>Non</td><td>Limité</td><td>Simple, single-user. Provider officiel OpenClaw. 🆕 v0.20.2 : support Gemma 4 (MoE 26B), jump majeur.</td></tr>
+<tr><td><strong>llama-server</strong></td><td>Tous, y compris hétérogènes</td><td>Oui (layer split)</td><td>Oui (multi-slots)</td><td>GPU mixtes, GGUF natif, production. 🆕 b8660 : CUDA 13.1, Qwen3.5 NVFP4, Step3.5 Multi-Token Prediction, MCP client natif.</td></tr>
 <tr><td><strong>vLLM</strong></td><td>NVIDIA identiques, AMD (ROCm)</td><td>Oui (tensor parallel)</td><td>Oui (production)</td><td>Throughput élevé, GPU identiques uniquement. 🆕 v0.17.0 : ROCm first-class (93% CI pass), FlashAttention 4.</td></tr>
 <tr><td><strong>TensorRT-LLM</strong></td><td>NVIDIA uniquement</td><td>Oui</td><td>Oui</td><td>Latence minimale NVIDIA</td></tr>
 <tr><td><strong>Exo</strong></td><td>Hétérogènes cross-device</td><td>Oui (distribué)</td><td>Limité</td><td>Clusters hétérogènes multi-machines</td></tr>
 </table>
 <div class="callout">⚠️ Si vos GPU sont hétérogènes (modèles ou marques différents), <strong>vLLM est exclu</strong> — il exige des GPU identiques. Utilisez llama-server (layer split) ou Exo (distribué). C'est un cas fréquent dans les builds d'occasion.</div>
+
+<h3>🆕 TurboQuant — compression KV cache 3-bit (Google Research)</h3>
+<p>Google Research a publié TurboQuant le 25 mars 2026, présenté à ICLR 2026. C'est une méthode de quantization quasi-optimale pour le KV cache : compression 3-bit (6x réduction mémoire vs FP16), 8x speedup attention sur H100/A100, sans perte de précision mesurable. Pas de re-training ni fine-tuning nécessaire.</p>
+<p><strong>Pourquoi c'est important :</strong> le KV cache est le facteur limitant de la fenêtre de contexte et du nombre de slots simultanés en inférence locale. La plupart des déploiements utilisent déjà une quantization Q4 du KV cache (ex: <code>--cache-type-k q4_0</code> dans llama-server). TurboQuant 3-bit permettrait environ 50% de contexte ou de slots supplémentaires à VRAM identique. Le code open-source est attendu Q2 2026. À surveiller : l'intégration dans llama.cpp (le vecteur le plus probable pour les déploiements on-prem).</p>
 </div>
 
 <div class="card">
@@ -523,9 +527,9 @@ function renderEcosystem(){return`
 <div class="section-title">OpenClaw et ses 15+ alternatives — mars 2026</div>
 
 <div class="card">
-<h3>État d'OpenClaw — 2 avril 2026</h3>
-<p>341K+ GitHub stars · 67K+ forks · 1243+ contributeurs · v2026.3.24 (25/03) · v2026.3.22 : 12 breaking changes, ClawHub registre par défaut, 30+ security patches, session cleanup, sub-agents multi-modèle · v2026.3.24 : OpenAI compat (/v1/models, /v1/embeddings), Teams SDK refondu, CLI --container Docker/Podman, openclaw config schema · ContextEngine pluggable · Ollama provider officiel · Provider-plugin architecture</p>
-<div class="callout-red callout">🚨 v2026.3.22 : 12 breaking changes. <code>CLAWDBOT_*</code> et <code>MOLTBOT_*</code> env vars supprimées sans shim. Qwen provider renommé "Qwen (Alibaba Cloud Model Studio)". ClawHub remplace npm comme registre par défaut. Exécuter <code>openclaw doctor --fix</code> après upgrade.</div>
+<h3>État d'OpenClaw — 4 avril 2026</h3>
+<p>347K+ GitHub stars · 69K+ forks · 1243+ contributeurs · 172 startups construites sur OpenClaw · 13 729 skills ClawHub · v2026.4.2 (2/04) · v2026.4.1 : /tasks (task board natif), SearXNG provider bundlé, exec hardening natif avec approvals, skills fail-closed par défaut · v2026.4.2 : Durable Task Flow orchestration, provider hardening, plugin boundaries renforcées · v2026.3.22 : 12 breaking changes, ClawHub registre par défaut, 30+ security patches · ContextEngine pluggable · Ollama provider officiel · Provider-plugin architecture</p>
+<div class="callout-red callout">🚨 v2026.3.22 : 12 breaking changes. <code>CLAWDBOT_*</code> et <code>MOLTBOT_*</code> env vars supprimées sans shim. Qwen provider renommé "Qwen (Alibaba Cloud Model Studio)". ClawHub remplace npm comme registre par défaut. v2026.4.2 : migration xAI plugin paths. Exécuter <code>openclaw doctor --fix</code> après chaque upgrade.</div>
 </div>
 
 <div class="card">
@@ -557,6 +561,7 @@ function renderEcosystem(){return`
 <tr><td><strong>RadeonClaw</strong></td><td>AMD</td><td>Qwen 3.5 35B via llama.cpp</td><td>Radeon AI PRO R9700, ~120 tok/s</td><td>GPU dédié, ROCm requis</td></tr>
 <tr><td><strong>ArkClaw</strong></td><td>ByteDance</td><td>—</td><td>Browser-based, zero setup</td><td>Peu de détails publics</td></tr>
 <tr><td><strong>KimiClaw</strong></td><td>Moonshot AI</td><td>Kimi K2.5 (1T MoE)</td><td>Browser-based, 5000+ skills, 40 Go cloud</td><td>Cloud-only, model-locked</td></tr>
+<tr><td><strong>Agent 365</strong></td><td>Microsoft</td><td>—</td><td>Control plane agents IA : Defender + Entra + Purview. Shadow AI detection. Zero Trust for AI. 🆕 GA 1er mai 2026.</td><td>Cloud Microsoft, propriétaire</td></tr>
 </table>
 <p><strong>Pour le déploiement on-prem souverain :</strong> aucune de ces solutions ne remplace un déploiement self-hosted maîtrisé. NemoClaw est la plus proche mais encore en alpha. MaxClaw et KimiClaw sont cloud-only. AMD fournit des configs de référence mais pas de packaging. Le guide que vous lisez couvre exactement ce gap.</p>
 </div>
@@ -593,12 +598,12 @@ function renderEcosystem(){return`
 </div>
 
 <div class="card">
-<h3>Modèles LLM — mars 2026</h3>
-<p><strong>Co-leaders :</strong> Gemini 3.1 Pro et GPT-5.4 (Intelligence Index 57). Claude Opus 4.6 reste le roi de la prose naturelle.</p>
-<p><strong>Meilleur open source rapport qualité/prix :</strong> QwQ-32B (Apache 2.0, MATH-500 0.957, HumanEval 0.976).</p>
-<p><strong>Meilleur agentic open source :</strong> Seed-OSS-36B (ByteDance, agentic index 27.73).</p>
-<p><strong>Prix API :</strong> baisse de ~80% YoY. DeepSeek V3.2 à $0.28/$0.42/M tokens. Gemini Flash-Lite à $0.075/$0.30. Claude Opus 4.6 à $5/$25 (-67% vs précédent). Le local n'est plus automatiquement moins cher — calculer le TCO réel.</p>
-<div class="callout-red callout">🚨 <strong>ALERTE SUPPLY CHAIN — LiteLLM (24 mars 2026)</strong> : les versions v1.82.7 et v1.82.8 du proxy LLM LiteLLM ont été compromises via une attaque supply chain (Trivy → PyPI). Payload malveillant dans proxy_server.py. Si vous utilisez LiteLLM comme proxy LLM, épinglez à ≤ v1.82.6. L'équipe BerriAI a engagé Google Mandiant et pausé les releases. Signal notable : le projet Nanobot (HKU) avait remplacé LiteLLM par des SDKs natifs 3 jours avant l'attaque. Leçon : minimiser les dépendances intermédiaires et épingler les versions.</div>
+<h3>Modèles LLM — avril 2026</h3>
+<p><strong>Leaderboard open source (S-tier) :</strong> GLM-5 (ZhipuAI), Qwen3.5-397B (Alibaba, MoE), Kimi K2.5 (Moonshot), gpt-oss-120B, Nemotron-3-Super-120B (NVIDIA). Qwen3.6 Plus sorti 31/03 (1M ctx, always-on CoT).</p>
+<p><strong>Meilleur rapport qualité/prix :</strong> QwQ-32B (Apache 2.0). Gemma 4 26B MoE (Google, 4B actifs — candidat worker léger).</p>
+<p><strong>Prix API :</strong> baisse de ~80% YoY. DeepSeek V3.2 à $0.28/$0.42/M tokens. Le local n'est plus automatiquement moins cher — calculer le TCO réel.</p>
+<p><strong>Quantization :</strong> Unsloth Dynamic 2.0 GGUF disponible pour tous les modèles majeurs. TurboQuant (Google) pour le KV cache 3-bit — code open-source attendu Q2 2026.</p>
+<div class="callout-red callout">🚨 <strong>ALERTE SUPPLY CHAIN — LiteLLM (24 mars 2026)</strong> : les versions v1.82.7 et v1.82.8 du proxy LLM LiteLLM ont été compromises via une attaque supply chain (TeamPCP via Trivy → PyPI). <strong>Mise à jour :</strong> v1.83.0 publiée le 30 mars via nouveau pipeline CI/CD v2 (environnements isolés, gates de sécurité). Confirmée safe. Upgrade possible depuis ≤ v1.82.6 après audit. Le Docker image officiel n'était PAS impacté.</div>
 </div>
 <div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'un accompagnement pour choisir le bon modèle et le bon runtime ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
 `;}
@@ -727,8 +732,8 @@ function renderLessons(){return`
 <div class="card card-accent" style="border-left-color:#F43F5E">
 <h3>🆕 Supply chain : ça n'arrive pas qu'aux skills</h3>
 <p>Le 24 mars 2026, LiteLLM — le proxy LLM le plus utilisé (95M downloads/mois PyPI, présent dans 36% des environnements cloud) — a été compromis via une attaque supply chain. Les versions v1.82.7 et v1.82.8 contenaient un payload malveillant en 3 phases : récolte de credentials (SSH, cloud, K8s, wallets), mouvement latéral Kubernetes (pods privilégiés), et backdoor systemd persistante.</p>
-<p>La chaîne d'attaque est remarquable : le groupe TeamPCP a d'abord compromis Trivy (scanner de sécurité, 19 mars), puis Checkmarx KICS (23 mars), puis LiteLLM (24 mars) — en utilisant les credentials volées à chaque étape pour atteindre la suivante. Plus inquiétant encore : un composant nommé "hackerbot-claw" utilisait un agent OpenClaw comme outil offensif pour du ciblage automatisé — le premier cas documenté d'agent IA dans une attaque supply chain.</p>
-<p>Le projet Nanobot (HKU) avait remplacé LiteLLM par des SDKs natifs OpenAI + Anthropic le 21 mars — 3 jours avant l'attaque.</p>
+<p>La chaîne d'attaque est remarquable : le groupe TeamPCP a d'abord compromis Trivy (scanner de sécurité, 19 mars), puis Checkmarx KICS (23 mars), puis LiteLLM (24 mars), puis Axios npm (30 mars, attribué acteur nord-coréen), puis Telnyx — en utilisant les credentials volées à chaque étape. Plus inquiétant : un composant "hackerbot-claw" utilisait un agent OpenClaw comme outil offensif pour du ciblage automatisé — le premier cas documenté d'agent IA dans une attaque supply chain. TeamPCP utilise aussi CanisterWorm, le premier malware utilisant l'Internet Computer Protocol (ICP) comme canal C2, impossible à takedown par les registrars.</p>
+<p><strong>Mise à jour (30 mars) :</strong> LiteLLM v1.83.0 a été publiée via un nouveau pipeline CI/CD v2 avec environnements isolés, gates de sécurité renforcées, et séparation sécurisée des releases. La version est confirmée safe. L'upgrade depuis v1.82.6 ou antérieur est possible mais à auditer soigneusement.</p>
 <p><strong>Solution :</strong> version pinning strict sur TOUTE la stack, pas seulement OpenClaw. Minimiser les dépendances intermédiaires quand les SDKs natifs suffisent. Ne jamais tirer de <code>:latest</code> en production. Séparer les secrets des agents : les clés API doivent rester dans un proxy/gateway, pas dans la config de l'agent. Voir la section "Identité des agents IA" pour le pattern recommandé.</p>
 </div>
 
