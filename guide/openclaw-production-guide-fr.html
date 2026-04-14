@@ -207,12 +207,12 @@ code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg-c
 <div class="theme-btn" data-t="light" onclick="setTheme('light')" title="Clair"></div>
 </div>
 </div>
-<div class="hdr-sub">Defense in depth · 10 couches sécurité · Dimensionnement hardware · Architecture de référence · Checklist production — 4 avril 2026</div>
+<div class="hdr-sub">Defense in depth · 10 couches sécurité · Dimensionnement hardware · Architecture de référence · Checklist production — 14 avril 2026</div>
 <div class="hdr-badges">
-<span class="badge badge-red">COMMUNITY EDITION v1.6.0</span>
+<span class="badge badge-red">COMMUNITY EDITION v1.7.0</span>
 <span class="badge badge-green">CC BY-SA 4.0</span>
-<span class="badge badge-purple">OpenClaw v2026.4.2</span>
-<span class="badge badge-amber">4 avril 2026</span>
+<span class="badge badge-purple">OpenClaw v2026.4.10</span>
+<span class="badge badge-amber">14 avril 2026</span>
 </div>
 </div>
 </div>
@@ -230,7 +230,7 @@ code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg-c
 <a href="https://www.linkedin.com/in/hemersonkoffi/">HKCONSEILS — Hemerson K.</a> · 
 <a href="https://github.com/HKCONSEILS/openclaw-production-guide">GitHub</a> · 
 CC BY-SA 4.0 · 
-v1.6.0 — 4 avril 2026
+v1.7.0 — 14 avril 2026
 </div>
 </div>
 
@@ -271,6 +271,9 @@ const TABS = [
   {id:"security",label:"10 Couches",icon:"🛡️"},
   {id:"hardware",label:"Hardware",icon:"⚙️"},
   {id:"ecosystem",label:"Écosystème",icon:"🌐"},
+  {id:"iac",label:"IaC Fleet",icon:"🔧"},
+  {id:"memory",label:"Mémoire",icon:"🧠"},
+  {id:"monitoring",label:"Monitoring",icon:"📊"},
   {id:"checklist",label:"Checklist",icon:"✅"},
   {id:"lessons",label:"Leçons",icon:"💡"},
 ];
@@ -288,7 +291,7 @@ function renderIntro(){return`
 <p>Ce guide documente comment déployer OpenClaw en production de manière sécurisée. Il est issu d'un travail interne mené par <a href="https://www.linkedin.com/in/hemersonkoffi/">HKCONSEILS</a> depuis le 27 février 2026 sur une infrastructure bare-metal réelle : serveur multi-GPU, fleet de mini-PCs agents, inférence locale, defense in depth 10 couches.</p>
 <p>C'est la version publique et sanitisée de ce travail. Les détails commerciaux, les configurations spécifiques et les identités des agents restent confidentiels.</p>
 </div>
-<div class="callout">⚠️ OpenClaw évolue chaque jour. Ce guide est daté du 4 avril 2026 (OpenClaw v2026.4.2). Vérifiez toujours contre <a href="https://docs.openclaw.ai">docs.openclaw.ai</a>. Les auteurs ne sont pas affiliés au projet OpenClaw.</div>
+<div class="callout">⚠️ OpenClaw évolue chaque jour. Ce guide est daté du 14 avril 2026 (OpenClaw v2026.4.10). Vérifiez toujours contre <a href="https://docs.openclaw.ai">docs.openclaw.ai</a>. Les auteurs ne sont pas affiliés au projet OpenClaw.</div>
 <div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'aide pour implémenter ce guide sur votre infrastructure ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
 `;}
 
@@ -322,6 +325,7 @@ function renderThreat(){return`
 <tr><td class="severity-high">OC-09</td><td class="severity-high">7.0</td><td>Injection</td><td>v2026.2.23</td><td>Env variable injection via skill config</td></tr>
 <tr><td>Credential Exposure</td><td class="severity-med">6.5</td><td>Leak</td><td>v2026.3.12</td><td>Setup codes QR embarquent credentials gateway long-lived</td></tr>
 <tr><td><strong>v2026.3.22 (30+ patches)</strong></td><td class="severity-high">7.0+</td><td>Multi</td><td>v2026.3.22</td><td>30+ security fixes dont SMB credential leak Windows, 12 breaking changes</td></tr>
+<tr><td><strong>v2026.4.9 (4 CVE)</strong></td><td class="severity-high">7.0+</td><td>Multi</td><td>v2026.4.9</td><td>SSRF quarantine bypass, injection dotenv, injection node exec, collision auth plugins</td></tr>
 <tr><td class="severity-crit">🚨 LiteLLM Supply Chain</td><td class="severity-crit">9.8</td><td>Supply Chain</td><td>≤v1.82.6</td><td>v1.82.7+v1.82.8 compromises via Trivy→PyPI. Payload dans proxy_server.py. Mandiant engagé.</td></tr>
 <tr><td>CVE-2026-26322</td><td class="severity-med">6.5</td><td>Traversal</td><td>v2026.2.14</td><td>Path traversal</td></tr>
 <tr><td>CVE-2026-26319</td><td class="severity-med">6.0</td><td>SSRF</td><td>v2026.2.14</td><td>Server-Side Request Forgery</td></tr>
@@ -332,7 +336,7 @@ function renderThreat(){return`
 <tr><td>Auth Bypass Feishu</td><td class="severity-med">5.0</td><td>Bypass</td><td>v2026.3.12</td><td>Reaction webhook sans chat_type bypass auth</td></tr>
 </table>
 </div>
-<div class="callout-red callout">🚨 Version minimum recommandée : <strong>v2026.3.22</strong> ou supérieure. Toute version antérieure est vulnérable à au moins une CVE critique. Auditer les 12 breaking changes avant upgrade.</div>
+<div class="callout-red callout">🚨 Version minimum recommandée : <strong>v2026.4.9</strong> ou supérieure. v2026.4.9 corrige 4 CVEs supplémentaires (SSRF, injections, collision auth). Toute version antérieure à v2026.3.22 est vulnérable à au moins une CVE critique. Auditer les 12 breaking changes v2026.3.22 avant upgrade.</div>
 <div class="cta"><span class="cta-icon">🤝</span><span>Besoin d'un audit de sécurité de votre déploiement OpenClaw ? <a href="https://www.linkedin.com/in/hemersonkoffi/">Contactez HKCONSEILS</a></span></div>
 `;}
 
@@ -469,7 +473,7 @@ function renderHardware(){return`
 <table>
 <tr><th>Runtime</th><th>GPU supportés</th><th>Multi-GPU</th><th>Multi-user</th><th>Cas d'usage</th></tr>
 <tr><td><strong>Ollama</strong></td><td>NVIDIA, Apple Silicon, (AMD limité)</td><td>Non</td><td>Limité</td><td>Simple, single-user. Provider officiel OpenClaw. 🆕 v0.20.2 : support Gemma 4 (MoE 26B), jump majeur.</td></tr>
-<tr><td><strong>llama-server</strong></td><td>Tous, y compris hétérogènes</td><td>Oui (layer split)</td><td>Oui (multi-slots)</td><td>GPU mixtes, GGUF natif, production. 🆕 b8660 : CUDA 13.1, Qwen3.5 NVFP4, Step3.5 Multi-Token Prediction, MCP client natif.</td></tr>
+<tr><td><strong>llama-server</strong></td><td>Tous, y compris hétérogènes</td><td>Oui (layer split)</td><td>Oui (multi-slots)</td><td>GPU mixtes, GGUF natif, production. 🆕 b8762 : build statique recommandé (<code>-DBUILD_SHARED_LIBS=OFF</code>, élimine dépendances libmtmd/libggml cassantes). CUDA 13.1, Qwen3.5 NVFP4, MCP client natif.</td></tr>
 <tr><td><strong>vLLM</strong></td><td>NVIDIA identiques, AMD (ROCm)</td><td>Oui (tensor parallel)</td><td>Oui (production)</td><td>Throughput élevé, GPU identiques uniquement. 🆕 v0.17.0 : ROCm first-class (93% CI pass), FlashAttention 4.</td></tr>
 <tr><td><strong>TensorRT-LLM</strong></td><td>NVIDIA uniquement</td><td>Oui</td><td>Oui</td><td>Latence minimale NVIDIA</td></tr>
 <tr><td><strong>Exo</strong></td><td>Hétérogènes cross-device</td><td>Oui (distribué)</td><td>Limité</td><td>Clusters hétérogènes multi-machines</td></tr>
@@ -527,9 +531,9 @@ function renderEcosystem(){return`
 <div class="section-title">OpenClaw et ses 15+ alternatives — mars 2026</div>
 
 <div class="card">
-<h3>État d'OpenClaw — 4 avril 2026</h3>
-<p>347K+ GitHub stars · 69K+ forks · 1243+ contributeurs · 172 startups construites sur OpenClaw · 13 729 skills ClawHub · v2026.4.2 (2/04) · v2026.4.1 : /tasks (task board natif), SearXNG provider bundlé, exec hardening natif avec approvals, skills fail-closed par défaut · v2026.4.2 : Durable Task Flow orchestration, provider hardening, plugin boundaries renforcées · v2026.3.22 : 12 breaking changes, ClawHub registre par défaut, 30+ security patches · ContextEngine pluggable · Ollama provider officiel · Provider-plugin architecture</p>
-<div class="callout-red callout">🚨 v2026.3.22 : 12 breaking changes. <code>CLAWDBOT_*</code> et <code>MOLTBOT_*</code> env vars supprimées sans shim. Qwen provider renommé "Qwen (Alibaba Cloud Model Studio)". ClawHub remplace npm comme registre par défaut. v2026.4.2 : migration xAI plugin paths. Exécuter <code>openclaw doctor --fix</code> après chaque upgrade.</div>
+<h3>État d'OpenClaw — 14 avril 2026</h3>
+<p>355K+ GitHub stars · 69K+ forks · 1243+ contributeurs · 172 startups construites sur OpenClaw · 13 729 skills ClawHub · v2026.4.10 (10/04) · v2026.4.9 : 4 CVE sécurité corrigées (SSRF quarantine bypass, injection dotenv, injection node exec, collision auth plugins) · v2026.4.1 : /tasks (task board natif), SearXNG provider bundlé, exec hardening natif avec approvals, skills fail-closed par défaut · TaskFlows webhook · memory-wiki · session branching · Dreaming/REM backfill · ContextEngine pluggable (hooks assemble/afterTurn/bootstrap/ingest/compact, registerMemoryPromptSupplement) · Ollama provider officiel · Provider-plugin architecture · llama.cpp b8762 · LiteLLM v1.83.x post-incident (audit Veria Labs en cours)</p>
+<div class="callout-red callout">🚨 v2026.3.22 : 12 breaking changes. <code>CLAWDBOT_*</code> et <code>MOLTBOT_*</code> env vars supprimées sans shim. Qwen provider renommé "Qwen (Alibaba Cloud Model Studio)". ClawHub remplace npm comme registre par défaut. v2026.4.10 : migration xAI plugin paths. Exécuter <code>openclaw doctor --fix</code> après chaque upgrade.</div>
 </div>
 
 <div class="card">
@@ -543,7 +547,7 @@ function renderEcosystem(){return`
 <tr><td><strong>IronClaw</strong></td><td>3.2K</td><td>Rust</td><td>Sandbox WASM, TEE-backed, credential vaults chiffrés</td><td>Niche security/blockchain</td></tr>
 <tr><td><strong>PicoClaw</strong></td><td>6.4K</td><td>—</td><td>Tourne sur boards à $10, <10MB RAM, startup 1s</td><td>IoT/edge only</td></tr>
 <tr><td><strong>Moltis</strong></td><td>—</td><td>Rust</td><td>Enterprise multi-tenant, RBAC natif</td><td>Pas encore de communauté large</td></tr>
-<tr><td><strong>Hermes</strong></td><td>—</td><td>—</td><td>mTLS natif pour communications inter-agents cross-réseau</td><td>Niche réseau</td></tr>
+<tr><td><strong>Hermes</strong></td><td>43.7K</td><td>Python</td><td>🆕 Nous Research (fév 2026). Boucle apprentissage fermée (exécution→évaluation→abstraction→réutilisation). Mémoire persistante multi-couche native. 14 plateformes messaging. <code>hermes claw migrate</code> = migration depuis OpenClaw en 1 commande.</td><td>Pas de multi-GPU, pas de layer split GPU hétérogènes</td></tr>
 <tr><td><strong>Safeclaw</strong></td><td>~1K</td><td>—</td><td>Architecture NO-LLM. Zéro prompt injection by design.</td><td>Pas de raisonnement IA</td></tr>
 </table>
 <p style="margin-top:14px"><strong>Verdict :</strong> aucun ne rivalise avec OpenClaw en termes de features + communauté + écosystème. ZeroClaw est le meilleur plan B (migration directe). IronClaw et OpenFang sont les plus intéressants architecturalement. NanoClaw valide le pattern d'isolation conteneur avec le backing Docker.</p>
@@ -676,7 +680,7 @@ const groups=[
 ]},
 ];
 return`
-<div class="section-num">§6 — Checklist de déploiement</div>
+<div class="section-num">§9 — Checklist de déploiement</div>
 <div class="section-title">40+ vérifications avant la mise en production</div>
 <div class="card">
 <p style="font-size:12px;color:#666;margin-bottom:16px">Cliquez sur un item pour le cocher. Cette checklist ne persiste pas — copiez-la dans votre runbook.</p>
@@ -690,7 +694,7 @@ ${g.items.map((item,i)=>`<div class="check-item" onclick="this.classList.toggle(
 `;}
 
 function renderLessons(){return`
-<div class="section-num">§7 — Leçons apprises</div>
+<div class="section-num">§10 — Leçons apprises</div>
 <div class="section-title">Ce qu'on a appris en production</div>
 
 <div class="card card-accent" style="border-left-color:#EF4444">
@@ -733,7 +737,7 @@ function renderLessons(){return`
 <h3>🆕 Supply chain : ça n'arrive pas qu'aux skills</h3>
 <p>Le 24 mars 2026, LiteLLM — le proxy LLM le plus utilisé (95M downloads/mois PyPI, présent dans 36% des environnements cloud) — a été compromis via une attaque supply chain. Les versions v1.82.7 et v1.82.8 contenaient un payload malveillant en 3 phases : récolte de credentials (SSH, cloud, K8s, wallets), mouvement latéral Kubernetes (pods privilégiés), et backdoor systemd persistante.</p>
 <p>La chaîne d'attaque est remarquable : le groupe TeamPCP a d'abord compromis Trivy (scanner de sécurité, 19 mars), puis Checkmarx KICS (23 mars), puis LiteLLM (24 mars), puis Axios npm (30 mars, attribué acteur nord-coréen), puis Telnyx — en utilisant les credentials volées à chaque étape. Plus inquiétant : un composant "hackerbot-claw" utilisait un agent OpenClaw comme outil offensif pour du ciblage automatisé — le premier cas documenté d'agent IA dans une attaque supply chain. TeamPCP utilise aussi CanisterWorm, le premier malware utilisant l'Internet Computer Protocol (ICP) comme canal C2, impossible à takedown par les registrars.</p>
-<p><strong>Mise à jour (30 mars) :</strong> LiteLLM v1.83.0 a été publiée via un nouveau pipeline CI/CD v2 avec environnements isolés, gates de sécurité renforcées, et séparation sécurisée des releases. La version est confirmée safe. L'upgrade depuis v1.82.6 ou antérieur est possible mais à auditer soigneusement.</p>
+<p><strong>Mise à jour (14 avril) :</strong> LiteLLM v1.83.0+ publiée via nouveau pipeline CI/CD v2 avec cosign (signatures vérifiables). Audit Veria Labs en cours. Version confirmée safe mais approche avec prudence — version ceiling recommandée ≤ v1.82.6 en production jusqu'à fin audit. CVE-2026-33634 (CVSS 9.4) attribuée.</p>
 <p><strong>Solution :</strong> version pinning strict sur TOUTE la stack, pas seulement OpenClaw. Minimiser les dépendances intermédiaires quand les SDKs natifs suffisent. Ne jamais tirer de <code>:latest</code> en production. Séparer les secrets des agents : les clés API doivent rester dans un proxy/gateway, pas dans la config de l'agent. Voir la section "Identité des agents IA" pour le pattern recommandé.</p>
 </div>
 
@@ -742,10 +746,154 @@ function renderLessons(){return`
 `;}
 
 // ═══════════════════════════════════
+//  NEW SECTIONS v1.7.0
+// ═══════════════════════════════════
+
+function renderIac(){return`
+<div class="section-num">§6 — Infrastructure as Code</div>
+<div class="section-title">IaC pour flottes OpenClaw — Terraform + Ansible</div>
+
+<div class="card">
+<h3>Pourquoi l'IaC est non négociable</h3>
+<p>OpenClaw évolue à un rythme effréné (releases quasi-quotidiennes). Sans IaC, chaque mise à jour manuelle crée de la dette technique et des écarts de configuration entre les machines. Avec 3+ agents, l'IaC n'est plus optionnel — c'est le seul moyen de garantir la reproductibilité et le rollback.</p>
+<p>Le piège classique : déployer les premiers agents "rapidement" en SSH, promettre de "mettre dans Ansible plus tard", puis accumuler 25 modifications manuelles non trackées en une semaine. Quand un serveur tombe, on ne peut rien reconstruire automatiquement — on lit les logs de chat pour retrouver ce qu'on a fait.</p>
+</div>
+
+<div class="card">
+<h3>Stack recommandée</h3>
+<p><strong>Terraform (bpg/proxmox)</strong> — gestion déclarative des LXC/VM Proxmox. Chaque conteneur est un bloc <code>resource</code> dans <code>main.tf</code>. <code>terraform plan</code> détecte le drift. <code>terraform import</code> rattrape les créations manuelles. State local (pas de backend distant pour un lab).</p>
+<p><strong>Ansible</strong> — configuration des machines et services. Un rôle par composant. Playbooks idempotents, rejouables sans risque. Inventaire par groupes (mini-PCs agents, LXC inférence, hosts Proxmox, services titan).</p>
+<p><strong>SOPS + age</strong> — secrets chiffrés dans git. Les tokens API, clés SSH, et credentials ne sont jamais en clair dans les fichiers de configuration. Un wrapper script décrypte avant <code>terraform apply</code>.</p>
+</div>
+
+<div class="card">
+<h3>Rôles Ansible recommandés pour OpenClaw</h3>
+<table>
+<tr><th>Rôle</th><th>Description</th><th>Cible</th></tr>
+<tr><td><code>llama_server</code></td><td>Déploiement llama-server (version, modèle, ctx-size, GPU) via host_vars par LXC</td><td>LXC inférence</td></tr>
+<tr><td><code>sshd_hardening</code></td><td>AllowUsers personnalisé par machine, PermitRootLogin, permissions fichiers (.env 600, .bash_history 600)</td><td>Fleet entière</td></tr>
+<tr><td><code>egress_allowlist</code></td><td>Règles nftables pour autoriser PyPI, HuggingFace, npm, GitHub — insertion AVANT les règles drop</td><td>Fleet entière</td></tr>
+<tr><td><code>node_exporter</code></td><td>Prometheus node_exporter pour métriques système sur chaque machine</td><td>Fleet entière</td></tr>
+<tr><td><code>qdrant</code></td><td>BDD vectorielle (Docker, config, service systemd) pour mémoire cross-agent</td><td>LXC dédié</td></tr>
+<tr><td><code>agent_memory</code></td><td>Embedding local + SQLite épisodique + consolidation nightly vers Qdrant</td><td>Mini-PCs agents</td></tr>
+</table>
+</div>
+
+<div class="callout">⚠️ <strong>Règle d'or :</strong> après la mise en place de l'IaC, tout nouveau déploiement passe par Terraform (LXC) + Ansible (config). Les modifications manuelles via SSH ne doivent plus être la norme — elles créent du drift invisible que <code>terraform plan</code> révèle souvent comme des <code>destroy</code> inattendus.</div>
+
+<div class="card">
+<h3>Piège courant : le drift Terraform</h3>
+<p>Si vous créez des LXC manuellement (<code>pct create</code>) sans les ajouter à Terraform, le state se désynchronise. <code>terraform plan</code> peut vouloir détruire des conteneurs qu'il ne connaît pas. Solution :</p>
+<p>1. <code>terraform import proxmox_virtual_environment_container.&lt;name&gt; "render/lxc/&lt;ID&gt;"</code> pour chaque LXC manquant<br>
+2. Ajouter le bloc <code>resource</code> correspondant dans <code>main.tf</code> en copiant les valeurs de <code>/etc/pve/lxc/&lt;ID&gt;.conf</code><br>
+3. Re-run <code>terraform plan</code> — objectif : 0 add, 0 destroy<br>
+4. Les changes cosmétiques (<code>start_on_boot</code>, <code>tags</code>) sont acceptables</p>
+</div>
+
+<div class="card">
+<h3>Piège : nftables et egress CDN</h3>
+<p>Les règles nftables avec restriction <code>ip daddr</code> (ranges IP fixes) cassent l'accès aux services hébergés sur CDN (PyPI, HuggingFace, npm, GitHub) dont les IPs changent régulièrement. Les téléchargements de modèles et de paquets échouent silencieusement.</p>
+<p><strong>Solution :</strong> pour les utilisateurs admin (root, admin), autoriser TCP 80/443 sans restriction IP. Pour les users agents (isolation UID-based), restreindre par port ET par destination si nécessaire. Insérer les règles d'autorisation AVANT le <code>log prefix "BLOCKED" drop</code> dans la chaîne output.</p>
+</div>
+
+<div class="card">
+<h3>Piège : DNS systemd-resolved failover</h3>
+<p>Si votre DNS interne (AdGuard, Pi-hole) redémarre ou devient temporairement inaccessible, <code>systemd-resolved</code> bascule sur les serveurs DNS fallback (routeur, Quad9) et <strong>ne revient pas automatiquement</strong> au serveur primaire. Les domaines internes ne résolvent plus.</p>
+<p><strong>Fix :</strong> déployer un drop-in <code>/etc/systemd/resolved.conf.d/lab-dns.conf</code> sur chaque machine :</p>
+<pre><code>[Resolve]
+DNS=&lt;IP_DNS_INTERNE&gt;
+Domains=~lab.mondomaine.fr ~agentia.lab.mondomaine.fr</code></pre>
+<p>Intégrer dans un rôle Ansible pour que chaque redéploiement le conserve.</p>
+</div>
+`;}
+
+function renderMemory(){return`
+<div class="section-num">§7 — Mémoire persistante des agents</div>
+<div class="section-title">Faire en sorte que les agents se souviennent</div>
+
+<div class="card">
+<h3>Le problème</h3>
+<p>Par défaut, les agents OpenClaw oublient tout entre les sessions. Le QMD (mémoire native OpenClaw) gère la mémoire conversationnelle à court terme, mais pas la mémoire à long terme structurée. Un agent CRM qui oublie les préférences d'un client entre deux conversations est inutilisable.</p>
+</div>
+
+<div class="card">
+<h3>Architecture hybride recommandée (Option C)</h3>
+<p>Combinaison de stockage local (résilience) et centralisé (recherche cross-agent) :</p>
+<p><strong>SQLite local</strong> (chaque machine agent) — stockage épisodique (message + réponse + embedding + timestamp). Recall top-5 par similarité cosinus en &lt;100ms. L'agent fonctionne même si le serveur centralisé est down.</p>
+<p><strong>Qdrant centralisé</strong> — consolidation nightly : un LLM résume les épisodes de la journée, l'embedding du résumé est poussé dans Qdrant (une collection par agent). Recherche cross-agent possible pour les workflows multi-agent ou un agent superviseur.</p>
+<p><strong>Pipeline par message :</strong></p>
+<p>1. Message reçu → 2. Embedding du message (CPU local, ~80ms) → 3. Recall top-5 épisodes similaires (SQLite) → 4. Injection dans le contexte LLM → 5. Réponse générée → 6. Stockage de l'épisode (message + réponse + embedding)</p>
+</div>
+
+<div class="card">
+<h3>Choix du modèle d'embedding (CPU)</h3>
+<p>Pour une exécution CPU sur hardware modeste (mini-PC ARM/x86, &lt;16 Go RAM) :</p>
+<table>
+<tr><th>Modèle</th><th>Params</th><th>MTEB</th><th>Latence CPU</th><th>RAM</th><th>Multilingue</th><th>Licence</th></tr>
+<tr><td><strong>nomic-embed-text-v1.5</strong></td><td>137M</td><td>~62</td><td>~80ms</td><td>1.3 Go</td><td>Moyen</td><td>Apache 2.0</td></tr>
+<tr><td>BGE-M3</td><td>568M</td><td>~65</td><td>~200ms</td><td>2.3 Go</td><td>Excellent</td><td>MIT</td></tr>
+<tr><td>all-MiniLM-L6-v2</td><td>22M</td><td>~56</td><td>&lt;5ms</td><td>~100 Mo</td><td>Faible</td><td>Apache 2.0</td></tr>
+</table>
+<p><strong>Recommandation :</strong> benchmarker sur votre hardware réel avec votre contenu réel (mix langues, longueur de texte). Les scores MTEB ne prédisent pas toujours la qualité de recall sur votre corpus spécifique. nomic-embed-text offre le meilleur compromis vitesse/qualité/RAM pour la plupart des déploiements CPU.</p>
+</div>
+
+<div class="callout-green callout">💡 <strong>ContextEngine plugin :</strong> OpenClaw v2026.4+ expose un SDK plugin avec les hooks <code>assemble</code> (injection mémoire avant le LLM call) et <code>afterTurn</code> (stockage post-réponse). C'est le point d'intégration natif pour la mémoire persistante. Voir <code>registerMemoryPromptSupplement</code> dans le plugin-sdk. API documentée dans <code>dist/plugin-sdk/index.js</code>.</div>
+
+<div class="card">
+<h3>Consolidation nightly — le résumé qui persiste</h3>
+<p>Un cron nightly (ex: 02:00) sur chaque machine agent :</p>
+<p>1. Récupère les épisodes non consolidés du jour (SQLite local)<br>
+2. Les envoie au LLM (cerveau) pour résumé en un paragraphe concis<br>
+3. Calcule l'embedding du résumé<br>
+4. Pousse le point (vecteur + payload) dans Qdrant (collection par agent)<br>
+5. Marque les épisodes comme consolidés</p>
+<p>Compute : ~500 tokens/épisode, ~2000 tokens/agent/nuit. Avec un LLM local, le coût est nul.</p>
+</div>
+
+<div class="callout">⚠️ <strong>Piège Qwen3.5 thinking mode :</strong> en mode thinking/reasoning, certains modèles retournent le contenu dans <code>reasoning_content</code> au lieu de <code>content</code> (qui est vide). Prévoir un fallback dans le parsing de la réponse LLM.</div>
+`;}
+
+function renderMonitoring(){return`
+<div class="section-num">§8 — Monitoring d'une flotte</div>
+<div class="section-title">Voir avant que ça casse</div>
+
+<div class="card">
+<h3>Stack recommandée</h3>
+<p><strong>Uptime Kuma</strong> — monitoring disponibilité (HTTP/PING), alertes Telegram/Slack/email. Auto-hébergé, léger (~256 Mo RAM), UI web intuitive. Idéal pour les checks binaires : le service est UP ou DOWN.</p>
+<p><strong>Prometheus + node_exporter</strong> — métriques système (CPU, RAM, disque, réseau) sur chaque machine. node_exporter expose un endpoint <code>/metrics</code> sur le port 9100. Prometheus scrape toutes les 30 secondes.</p>
+<p><strong>Grafana</strong> — visualisation centralisée. Dashboard "Node Exporter Full" (ID 1860 sur grafana.com) donne une vue complète de chaque machine en un import.</p>
+</div>
+
+<div class="card">
+<h3>Endpoints à monitorer</h3>
+<table>
+<tr><th>Service</th><th>Endpoint</th><th>Attendu</th><th>Fréquence</th></tr>
+<tr><td>Agent OpenClaw</td><td><code>/healthz</code></td><td>HTTP 200</td><td>60s</td></tr>
+<tr><td>llama-server</td><td><code>/health</code></td><td>HTTP 200 + JSON</td><td>60s</td></tr>
+<tr><td>LiteLLM</td><td><code>/health</code></td><td>HTTP 200</td><td>60s</td></tr>
+<tr><td>Qdrant</td><td><code>/readyz</code></td><td>HTTP 200</td><td>300s</td></tr>
+<tr><td>Machines</td><td>—</td><td>PING &lt;50ms</td><td>60s</td></tr>
+<tr><td>node_exporter</td><td><code>:9100/metrics</code></td><td>HTTP 200</td><td>scrape Prometheus</td></tr>
+</table>
+</div>
+
+<div class="callout-red callout">🚨 <strong>Alerte critique :</strong> un agent OpenClaw en boucle infinie peut saturer le CPU/RAM sans que le <code>/healthz</code> ne le détecte (le gateway répond OK même si l'agent tourne en rond). Monitorer le CPU et la RAM via node_exporter EN COMPLÉMENT du health check HTTP. Alerter sur : CPU &gt; 90% pendant 5 min, RAM &gt; 90%, disque &gt; 85%.</div>
+
+<div class="card">
+<h3>Monitoring GPU (inférence locale)</h3>
+<p>Pour les machines avec GPU :</p>
+<p>• <code>nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total,temperature.gpu --format=csv</code> dans un cron<br>
+• DCGM exporter pour Prometheus (métriques GPU granulaires)<br>
+• Alerter sur : GPU detach (visible = 0), température &gt; 85°C, VRAM saturée</p>
+<p>Pour les serveurs avec ECC RAM : monitorer EDAC (corrected/uncorrected errors) et MCE (machine check exceptions). Un taux d'erreurs croissant indique une DIMM défaillante.</p>
+</div>
+`;}
+
+// ═══════════════════════════════════
 //  RENDER ENGINE
 // ═══════════════════════════════════
 
-const renderers={intro:renderIntro,threat:renderThreat,archi:renderArchi,security:renderSecurity,hardware:renderHardware,ecosystem:renderEcosystem,checklist:renderChecklist,lessons:renderLessons};
+const renderers={intro:renderIntro,threat:renderThreat,archi:renderArchi,security:renderSecurity,hardware:renderHardware,ecosystem:renderEcosystem,iac:renderIac,memory:renderMemory,monitoring:renderMonitoring,checklist:renderChecklist,lessons:renderLessons};
 
 function init(){
   const nav=document.getElementById("nav");

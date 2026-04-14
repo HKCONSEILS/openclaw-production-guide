@@ -10,6 +10,41 @@ sessions de travail avec Claude (Anthropic).
 
 ---
 
+## [1.7.0] — 2026-04-14
+
+### Added
+- Nouvelle section §6 : Infrastructure as Code pour flottes OpenClaw
+  - Patterns Terraform (bpg/proxmox) : import, drift, state sync
+  - Rôles Ansible recommandés : llama_server, sshd_hardening, egress_allowlist, node_exporter, qdrant, agent_memory
+  - SOPS + age pour secrets chiffrés dans git
+  - Piège DNS systemd-resolved failover (fix drop-in resolved.conf.d)
+  - Piège nftables egress CDN (insertion avant drop)
+- Nouvelle section §7 : Mémoire persistante des agents
+  - Architecture hybride SQLite local + Qdrant centralisé (Option C)
+  - Benchmark embedding CPU : nomic-embed-text vs BGE-M3 vs all-MiniLM
+  - Pipeline recall top-5 par similarité cosinus
+  - Consolidation nightly (résumé LLM → Qdrant)
+  - ContextEngine plugin SDK (hooks assemble/afterTurn, registerMemoryPromptSupplement)
+  - Piège Qwen3.5 thinking mode (reasoning_content vs content)
+- Nouvelle section §8 : Monitoring d'une flotte OpenClaw
+  - Uptime Kuma + Prometheus/node_exporter + Grafana
+  - Endpoints à monitorer (healthz, health, readyz, ping)
+  - Monitoring GPU (nvidia-smi, DCGM, EDAC/MCE pour ECC RAM)
+  - Alerte boucle infinie agent (CPU/RAM complément du healthz)
+- OpenClaw v2026.4.9 : 4 CVE corrigées (SSRF quarantine bypass, injection dotenv, injection node exec, collision auth plugins) ajoutées à la timeline
+- Hermes Agent (Nous Research, 43.7K stars) enrichi dans les alternatives — premier concurrent sérieux avec migration OpenClaw en 1 commande
+
+### Changed
+- État OpenClaw : 355K+ stars, v2026.4.10, ContextEngine hooks documentés, llama.cpp b8762, LiteLLM v1.83.x
+- Version minimum recommandée : v2026.3.22 → v2026.4.9
+- llama-server : b8660 → b8762 (build statique -DBUILD_SHARED_LIBS=OFF recommandé)
+- LiteLLM : statut mis à jour (audit Veria Labs en cours, CVE-2026-33634 CVSS 9.4, version ceiling ≤ v1.82.6)
+- Navigation : 8 → 11 onglets
+- Numérotation sections mise à jour (§0-§10)
+- Date mise à jour 14 avril 2026
+
+---
+
 ## [1.6.0] — 2026-04-04
 
 ### Added

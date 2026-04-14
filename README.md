@@ -20,7 +20,7 @@
 
 ## What is this?
 
-OpenClaw is the most popular open-source AI agent framework (315K+ GitHub stars, March 2026). It's powerful — but it's young, and deploying it in production requires serious security hardening.
+OpenClaw is the most popular open-source AI agent framework (355K+ GitHub stars, March 2026). It's powerful — but it's young, and deploying it in production requires serious security hardening.
 
 This guide is the **sanitized, public version** of an internal Masterplan maintained by [HKCONSEILS](https://www.linkedin.com/in/hemersonkoffi/) since February 27, 2026. It documents real-world deployment patterns, security architecture, hardware sizing, and lessons learned from running OpenClaw agents on bare-metal infrastructure.
 
